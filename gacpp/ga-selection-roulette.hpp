@@ -1,6 +1,6 @@
 
 template<typename ForwardIterator, typename Real, typename Fitness /* std::function<Real(ForwardIterator)> */>
-ForwardIterator roulette_one(ForwardIterator begin, ForwardIterator end, Real fSlice, Fitness fitness)
+ForwardIterator roulette_one(ForwardIterator begin, ForwardIterator end, Real fSlice, Fitness&&fitness)
 {
     auto fFitnessSoFar = Real(0.0);
     
