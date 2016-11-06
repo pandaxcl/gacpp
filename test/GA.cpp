@@ -36,8 +36,10 @@ SCENARIO("roulette_one", "[GA]")
 
             WHEN("choose by random 0.3")
             {
+                auto random = random_0_1();
+                REQUIRE(std::abs(random - 0.3) < 0.0001);
                 auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random_0_1()*fTotalFitness,
+                                                         random*fTotalFitness,
                                                          [](Member&member)->float
                                                          {
                                                              return member.fitness;
@@ -49,8 +51,10 @@ SCENARIO("roulette_one", "[GA]")
             }
             WHEN("choose by random 0.9")
             {
+                auto random = random_0_1();
+                REQUIRE(std::abs(random - 0.9) < 0.0001);
                 auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random_0_1()*fTotalFitness,
+                                                         random*fTotalFitness,
                                                          [](Member&member)->float
                                                          {
                                                              return member.fitness;
@@ -62,8 +66,10 @@ SCENARIO("roulette_one", "[GA]")
             }
             WHEN("choose by random 0.2")
             {
+                auto random = random_0_1();
+                REQUIRE(std::abs(random - 0.2) < 0.0001);
                 auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random_0_1()*fTotalFitness,
+                                                         random*fTotalFitness,
                                                          [](Member&member)->float
                                                          {
                                                              return member.fitness;
@@ -75,8 +81,10 @@ SCENARIO("roulette_one", "[GA]")
             }
             WHEN("choose by random 0.7")
             {
+                auto random = random_0_1();
+                REQUIRE(std::abs(random - 0.7) < 0.0001);
                 auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random_0_1()*fTotalFitness,
+                                                         random*fTotalFitness,
                                                          [](Member&member)->float
                                                          {
                                                              return member.fitness;
@@ -88,8 +96,10 @@ SCENARIO("roulette_one", "[GA]")
             }
             WHEN("choose by random 0.5")
             {
+                auto random = random_0_1();
+                REQUIRE(std::abs(random - 0.5) < 0.0001);
                 auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random_0_1()*fTotalFitness,
+                                                         random*fTotalFitness,
                                                          [](Member&member)->float
                                                          {
                                                              return member.fitness;
@@ -101,8 +111,10 @@ SCENARIO("roulette_one", "[GA]")
             }
             WHEN("choose by random 0.4")
             {
+                auto random = random_0_1();
+                REQUIRE(std::abs(random - 0.4) < 0.0001);
                 auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random_0_1()*fTotalFitness,
+                                                         random*fTotalFitness,
                                                          [](Member&member)->float
                                                          {
                                                              return member.fitness;
