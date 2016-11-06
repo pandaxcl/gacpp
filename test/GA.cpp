@@ -33,17 +33,21 @@ SCENARIO("roulette_one", "[GA]")
             auto fTotalFitness = 6.2;
             
             REQUIRE(std::abs(fTotalFitness - (1.0+1.5+0.8+2.0+0.2+0.7)) < 0.001);
+            
+            auto fitness = [](Member&member)->float
+            {
+                return member.fitness;
+            };
+            auto slice = [fTotalFitness](float random)
+            {
+                return random * fTotalFitness;
+            };
 
             WHEN("choose by random 0.3")
             {
                 auto random = random_0_1();
                 REQUIRE(std::abs(random - 0.3) < 0.0001);
-                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random*fTotalFitness,
-                                                         [](Member&member)->float
-                                                         {
-                                                             return member.fitness;
-                                                         });
+                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members), slice(random), fitness);
                 THEN("should select the 2nd member")
                 {
                     REQUIRE(std::distance(std::begin(members), it) == 1);
@@ -53,12 +57,7 @@ SCENARIO("roulette_one", "[GA]")
             {
                 auto random = random_0_1();
                 REQUIRE(std::abs(random - 0.9) < 0.0001);
-                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random*fTotalFitness,
-                                                         [](Member&member)->float
-                                                         {
-                                                             return member.fitness;
-                                                         });
+                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members), slice(random), fitness);
                 THEN("should select the 6th member")
                 {
                     REQUIRE(std::distance(std::begin(members), it) == 5);
@@ -68,12 +67,7 @@ SCENARIO("roulette_one", "[GA]")
             {
                 auto random = random_0_1();
                 REQUIRE(std::abs(random - 0.2) < 0.0001);
-                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random*fTotalFitness,
-                                                         [](Member&member)->float
-                                                         {
-                                                             return member.fitness;
-                                                         });
+                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members), slice(random), fitness);
                 THEN("should select the 2nd member")
                 {
                     REQUIRE(std::distance(std::begin(members), it) == 1);
@@ -83,12 +77,7 @@ SCENARIO("roulette_one", "[GA]")
             {
                 auto random = random_0_1();
                 REQUIRE(std::abs(random - 0.7) < 0.0001);
-                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random*fTotalFitness,
-                                                         [](Member&member)->float
-                                                         {
-                                                             return member.fitness;
-                                                         });
+                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members), slice(random), fitness);
                 THEN("should select the 4th member")
                 {
                     REQUIRE(std::distance(std::begin(members), it) == 3);
@@ -98,12 +87,7 @@ SCENARIO("roulette_one", "[GA]")
             {
                 auto random = random_0_1();
                 REQUIRE(std::abs(random - 0.5) < 0.0001);
-                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random*fTotalFitness,
-                                                         [](Member&member)->float
-                                                         {
-                                                             return member.fitness;
-                                                         });
+                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members), slice(random), fitness);
                 THEN("should select the 3rd member")
                 {
                     REQUIRE(std::distance(std::begin(members), it) == 2);
@@ -113,12 +97,7 @@ SCENARIO("roulette_one", "[GA]")
             {
                 auto random = random_0_1();
                 REQUIRE(std::abs(random - 0.4) < 0.0001);
-                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members),
-                                                         random*fTotalFitness,
-                                                         [](Member&member)->float
-                                                         {
-                                                             return member.fitness;
-                                                         });
+                auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members), slice(random), fitness);
                 THEN("should select the 2nd member")
                 {
                     REQUIRE(std::distance(std::begin(members), it) == 1);
