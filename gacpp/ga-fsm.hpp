@@ -56,8 +56,11 @@ namespace finite_state_machine {
                     {
                         do_actions(state.on_leave);
                         do_actions(transition.actions);
+
                         this->current_state = transition.target_state;
-                        do_actions(state.on_enter);
+
+                        auto&&target_state = this->states.at(this->current_state);
+                        do_actions(target_state.on_enter);
                     }
                     break;
                 }
