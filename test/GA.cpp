@@ -106,3 +106,105 @@ SCENARIO("roulette_one", "[GA]")
         }
     }
 }
+
+SCENARIO("crossover", "[GA]")
+{
+    GIVEN("A: {0, 1, 2, 3, 4, }")
+    {
+        int A[5] = {0, 1, 2, 3, 4, };
+        REQUIRE(std::distance(std::begin(A), std::end(A)) == 5);
+        GIVEN("B: {5, 6, 7, 8, 9, }")
+        {
+            int B[5] = {5, 6, 7, 8, 9, };
+            REQUIRE(std::distance(std::begin(B), std::end(B)) == 5);
+            
+            WHEN("crossover::with_single_point")
+            {
+                AND_WHEN("at point 1")
+                {
+                    gacpp::crossover::with_single_point(std::begin(A), std::end(A),
+                                                        std::begin(B), std::end(B),
+                                                        1);
+                    
+                    THEN("A should be: {0, 6, 7, 8, 9} and B should be: {5, 1, 2, 3, 4}")
+                    {
+                        REQUIRE(A[0] == 0);
+                        REQUIRE(A[1] == 6);
+                        REQUIRE(A[2] == 7);
+                        REQUIRE(A[3] == 8);
+                        REQUIRE(A[4] == 9);
+                        
+                        REQUIRE(B[0] == 5);
+                        REQUIRE(B[1] == 1);
+                        REQUIRE(B[2] == 2);
+                        REQUIRE(B[3] == 3);
+                        REQUIRE(B[4] == 4);
+                    }
+                }
+                AND_WHEN("at point 2")
+                {
+                    gacpp::crossover::with_single_point(std::begin(A), std::end(A),
+                                                        std::begin(B), std::end(B),
+                                                        2);
+                    
+                    THEN("A should be: {0, 1, 7, 8, 9} and B should be: {5, 6, 2, 3, 4}")
+                    {
+                        REQUIRE(A[0] == 0);
+                        REQUIRE(A[1] == 1);
+                        REQUIRE(A[2] == 7);
+                        REQUIRE(A[3] == 8);
+                        REQUIRE(A[4] == 9);
+                        
+                        REQUIRE(B[0] == 5);
+                        REQUIRE(B[1] == 6);
+                        REQUIRE(B[2] == 2);
+                        REQUIRE(B[3] == 3);
+                        REQUIRE(B[4] == 4);
+                    }
+                }
+                AND_WHEN("at point 3")
+                {
+                    gacpp::crossover::with_single_point(std::begin(A), std::end(A),
+                                                        std::begin(B), std::end(B),
+                                                        3);
+                    
+                    THEN("A should be: {0, 1, 2, 8, 9} and B should be: {5, 6, 7, 3, 4}")
+                    {
+                        REQUIRE(A[0] == 0);
+                        REQUIRE(A[1] == 1);
+                        REQUIRE(A[2] == 2);
+                        REQUIRE(A[3] == 8);
+                        REQUIRE(A[4] == 9);
+                        
+                        REQUIRE(B[0] == 5);
+                        REQUIRE(B[1] == 6);
+                        REQUIRE(B[2] == 7);
+                        REQUIRE(B[3] == 3);
+                        REQUIRE(B[4] == 4);
+                    }
+                }
+                AND_WHEN("at point 4")
+                {
+                    gacpp::crossover::with_single_point(std::begin(A), std::end(A),
+                                                        std::begin(B), std::end(B),
+                                                        4);
+                    
+                    THEN("A should be: {0, 1, 2, 3, 9} and B should be: {5, 6, 7, 8, 4}")
+                    {
+                        REQUIRE(A[0] == 0);
+                        REQUIRE(A[1] == 1);
+                        REQUIRE(A[2] == 2);
+                        REQUIRE(A[3] == 3);
+                        REQUIRE(A[4] == 9);
+                        
+                        REQUIRE(B[0] == 5);
+                        REQUIRE(B[1] == 6);
+                        REQUIRE(B[2] == 7);
+                        REQUIRE(B[3] == 8);
+                        REQUIRE(B[4] == 4);
+                    }
+                }
+            }
+        }
+    }
+}
