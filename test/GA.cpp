@@ -208,3 +208,77 @@ SCENARIO("crossover", "[GA]")
         }
     }
 }
+
+SCENARIO("mutate", "[GA]")
+{
+    GIVEN("A: {0, 1, 2, 3, 4, }")
+    {
+        int A[5] = {0, 1, 2, 3, 4, };
+        REQUIRE(std::distance(std::begin(A), std::end(A)) == 5);
+        GIVEN("mutate function [](int&m){ m=9; }")
+        {
+            auto mutate_function = [](int&m){ m=9; };
+            WHEN("mutate at point 0")
+            {
+                gacpp::mutate::at_single_point(std::begin(A), std::end(A), 0, mutate_function);
+                THEN("A should be {9, 1, 2, 3, 4}")
+                {
+                    REQUIRE(A[0] == 9);
+                    REQUIRE(A[1] == 1);
+                    REQUIRE(A[2] == 2);
+                    REQUIRE(A[3] == 3);
+                    REQUIRE(A[4] == 4);
+                }
+            }
+            WHEN("mutate at point 1")
+            {
+                gacpp::mutate::at_single_point(std::begin(A), std::end(A), 1, mutate_function);
+                THEN("A should be {0, 9, 2, 3, 4}")
+                {
+                    REQUIRE(A[0] == 0);
+                    REQUIRE(A[1] == 9);
+                    REQUIRE(A[2] == 2);
+                    REQUIRE(A[3] == 3);
+                    REQUIRE(A[4] == 4);
+                }
+            }
+            WHEN("mutate at point 2")
+            {
+                gacpp::mutate::at_single_point(std::begin(A), std::end(A), 2, mutate_function);
+                THEN("A should be {0, 1, 9, 3, 4}")
+                {
+                    REQUIRE(A[0] == 0);
+                    REQUIRE(A[1] == 1);
+                    REQUIRE(A[2] == 9);
+                    REQUIRE(A[3] == 3);
+                    REQUIRE(A[4] == 4);
+                }
+            }
+            WHEN("mutate at point 3")
+            {
+                gacpp::mutate::at_single_point(std::begin(A), std::end(A), 3, mutate_function);
+                THEN("A should be {0, 1, 2, 9, 4}")
+                {
+                    REQUIRE(A[0] == 0);
+                    REQUIRE(A[1] == 1);
+                    REQUIRE(A[2] == 2);
+                    REQUIRE(A[3] == 9);
+                    REQUIRE(A[4] == 4);
+                }
+            }
+            WHEN("mutate at point 4")
+            {
+                gacpp::mutate::at_single_point(std::begin(A), std::end(A), 4, mutate_function);
+                THEN("A should be {0, 1, 2, 3, 9}")
+                {
+                    REQUIRE(A[0] == 0);
+                    REQUIRE(A[1] == 1);
+                    REQUIRE(A[2] == 2);
+                    REQUIRE(A[3] == 3);
+                    REQUIRE(A[4] == 9);
+                }
+            }
+        }
+        
+    }
+}
