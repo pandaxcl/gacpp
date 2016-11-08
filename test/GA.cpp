@@ -9,7 +9,7 @@ SCENARIO("roulette_one", "[GA]")
     GIVEN("a random [0, 1] generator")
     {
         const size_t N = 6;
-        const float V[N] = { 0.3, 0.9, 0.2, /* _ */ 0.7, 0.5, 0.4, };
+        const float V[N] = { 0.3, 0.9, 0.1, /* _ */ 0.7, 0.5, 0.87, };
         auto random_0_1=[V]()->float{
             static size_t i = 0;
             i++;
@@ -63,14 +63,14 @@ SCENARIO("roulette_one", "[GA]")
                     REQUIRE(std::distance(std::begin(members), it) == 5);
                 }
             }
-            WHEN("choose by random 0.2")
+            WHEN("choose by random 0.1")
             {
                 auto random = random_0_1();
-                REQUIRE(std::abs(random - 0.2) < 0.0001);
+                REQUIRE(std::abs(random - 0.1) < 0.0001);
                 auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members), slice(random), fitness);
-                THEN("should select the 2nd member")
+                THEN("should select the 1st member")
                 {
-                    REQUIRE(std::distance(std::begin(members), it) == 1);
+                    REQUIRE(std::distance(std::begin(members), it) == 0);
                 }
             }
             WHEN("choose by random 0.7")
@@ -93,14 +93,14 @@ SCENARIO("roulette_one", "[GA]")
                     REQUIRE(std::distance(std::begin(members), it) == 2);
                 }
             }
-            WHEN("choose by random 0.4")
+            WHEN("choose by random 0.87")
             {
                 auto random = random_0_1();
-                REQUIRE(std::abs(random - 0.4) < 0.0001);
+                REQUIRE(std::abs(random - 0.87) < 0.0001);
                 auto it = gacpp::selection::roulette_one(std::begin(members), std::end(members), slice(random), fitness);
                 THEN("should select the 2nd member")
                 {
-                    REQUIRE(std::distance(std::begin(members), it) == 1);
+                    REQUIRE(std::distance(std::begin(members), it) == 4);
                 }
             }
         }
