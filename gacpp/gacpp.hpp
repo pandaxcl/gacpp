@@ -1,5 +1,6 @@
 #pragma once
 #include <list>
+#include <random>
 
 namespace gacpp {
 
@@ -8,5 +9,6 @@ namespace gacpp {
 #include "ga-selection.hpp"
 #include "ga-crossover.hpp"
 #include "ga-mutate.hpp"
+#include "ga-algorithm.hpp"
 
 } // namespace gacpp {

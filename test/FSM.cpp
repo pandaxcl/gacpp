@@ -24,9 +24,13 @@ SCENARIO("", "[FSM]")
             size_t target_state;// 2+2N+1
             size_t actions[N];  // [2+2N+2, 2+2N+2+N)
         }transition;
-        size_t valid_cross_point(size_t i)
+        size_t crossover(size_t i)
         {
             return i;
+        }
+        void mutate()
+        {
+            
         }
     };
     

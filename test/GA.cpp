@@ -34,9 +34,9 @@ SCENARIO("roulette_one", "[GA]")
             
             REQUIRE(std::abs(fTotalFitness - (1.0+1.5+0.8+2.0+0.2+0.7)) < 0.001);
             
-            auto fitness = [](Member&member)->float
+            auto fitness = [](Member*member)->float
             {
-                return member.fitness;
+                return member->fitness;
             };
             auto slice = [fTotalFitness](float random)
             {
