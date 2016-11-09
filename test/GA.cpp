@@ -282,3 +282,58 @@ SCENARIO("mutate", "[GA]")
         
     }
 }
+
+SCENARIO("c++11", "[GA]")
+{
+    GIVEN("two objects A and B of class Class")
+    {
+        struct Local
+        {
+            int copy_constructed = 0;
+            int assign_operator_called = 0;
+        };
+        auto local = std::make_shared<Local>();
+        
+        class Class
+        {
+            std::shared_ptr<Local>local;
+        public:
+            Class() = delete;
+            explicit Class(std::shared_ptr<Local>x):local(x){}
+            Class(const Class&o):local(o.local) { local->copy_constructed++; }
+            Class&operator=(const Class&o){ local->assign_operator_called++; return *this; }
+        };
+        
+        Class A(local);
+        REQUIRE(local->copy_constructed == 0);
+        REQUIRE(local->assign_operator_called == 0);
+        Class B(local);
+        REQUIRE(local->copy_constructed == 0);
+        REQUIRE(local->assign_operator_called == 0);
+        
+        GIVEN("two references to A and B")
+        {
+            Class&ref1 = A;
+            Class&ref2 = B;
+            THEN("copy_constructed and assign_operator_called should be not changed")
+            {
+                REQUIRE(local->copy_constructed == 0);
+                REQUIRE(local->assign_operator_called == 0);
+            }
+            WHEN("swap ref1 and ref2")
+            {
+                std::swap(ref1, ref2);
+                REQUIRE(local->copy_constructed == 1);
+                REQUIRE(local->assign_operator_called == 2);
+            }
+            WHEN("swap ref1 and ref2 with rvalue")
+            {
+                auto&&tmp = ref1;
+                ref1 = std::forward<Class>(ref2);
+                ref2 = std::forward<Class>(tmp);
+                REQUIRE(local->copy_constructed == 0);
+                REQUIRE(local->assign_operator_called == 2);
+            }
+        }
+    }
+}
