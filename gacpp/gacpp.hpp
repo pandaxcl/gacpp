@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
 #include <random>
+#include <cassert>
 
 namespace gacpp {
 

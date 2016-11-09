@@ -34,8 +34,6 @@ SCENARIO("", "[FSM]")
         }
     };
     
-    typedef gacpp::model::chromosome<Gene, 100, size_t> chromosome_t;
-    
     GIVEN("turn on/off one light to check finite_state_machine code")
     {
         enum {UNKNOWN, NOT_CONNECTED, CONNECTED} powerState = UNKNOWN;
@@ -146,7 +144,12 @@ SCENARIO("", "[FSM]")
     
     GIVEN("living room's lights")
     {
+        typedef gacpp::model::chromosome<Gene, 100, size_t> chromosome_t;
+        typedef gacpp::algorithm::population<chromosome_t> population_t;
         
+        population_t GA;
+        GA.random_initialize();
+        GA.epoch();
     }
     
     GIVEN("clock")
