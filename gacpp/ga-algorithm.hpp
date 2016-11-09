@@ -1,9 +1,10 @@
 
 namespace algorithm {
 
-    template<typename Resident, typename Real=double>
+    template<typename Resident, typename Real=double, typename Random = std::default_random_engine>
     struct population {
-        typedef std::vector<Resident> residents_type;
+        typedef std::vector<Resident>   residents_type;
+        typedef Random                  random_engine;
         residents_type      *residents_ptr = nullptr;
         residents_type      *residents_next_ptr = nullptr;
         struct {
@@ -11,8 +12,8 @@ namespace algorithm {
             residents_type  residents_back;
         }buffer;
         
-        std::vector<Real>           fitnesses;
-        std::default_random_engine  random;
+        std::vector<Real>   fitnesses;
+        random_engine       random;
         
         population()
         {
