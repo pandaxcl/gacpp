@@ -6,34 +6,59 @@
 #include "gacpp/ga-fsm.hpp"
 #include <iostream>
 
+const size_t N = 4;
+struct Gene
+{
+    enum class T:size_t {INITIAL, STATE, TRANSITION} type; // 0
+    struct {
+        size_t state = 0; // 1
+    }initial;
+    struct {
+        size_t on_enter[N]; // [2, 2+N)
+        size_t on_leave[N]; // [2+N, 2+2N)
+    }state;
+    struct {
+        size_t condition;   // 2+2N+0
+        size_t target_state;// 2+2N+1
+        size_t actions[N];  // [2+2N+2, 2+2N+2+N)
+    }transition;
+    
+    template<typename Random>
+    void random_initialize(Random&&random)
+    {
+        
+    }
+//    template<typename ForwardIterator, typename Random>
+//    static void random_initialize(ForwardIterator begin, ForwardIterator end, Random&&random)
+//    {
+//        
+//    }
+    template<typename ForwardIterator, typename Random>
+    static double compute_fitness(ForwardIterator begin, ForwardIterator end, Random&&random)
+    {
+        return double(0);
+    }
+    
+    template<typename ForwardIterator, typename Random>
+    static void crossover(ForwardIterator begin1, ForwardIterator end1,
+                          ForwardIterator begin2, ForwardIterator end2, Random&&random)
+    {
+        
+    }
+    template<typename Random>
+    void mutate(Random&&random)
+    {
+        
+    }
+//    template<typename ForwardIterator, typename Random>
+//    static void mutate(ForwardIterator begin, ForwardIterator end, Random&&random)
+//    {
+//        
+//    }
+};
+
 SCENARIO("", "[FSM]")
 {
-    const size_t N = 4;
-    struct Gene
-    {
-        enum class T:size_t {INITIAL, STATE, TRANSITION} type; // 0
-        struct {
-            size_t state = 0; // 1
-        }initial;
-        struct {
-            size_t on_enter[N]; // [2, 2+N)
-            size_t on_leave[N]; // [2+N, 2+2N)
-        }state;
-        struct {
-            size_t condition;   // 2+2N+0
-            size_t target_state;// 2+2N+1
-            size_t actions[N];  // [2+2N+2, 2+2N+2+N)
-        }transition;
-        size_t crossover(size_t i)
-        {
-            return i;
-        }
-        void mutate()
-        {
-            
-        }
-    };
-    
     GIVEN("turn on/off one light to check finite_state_machine code")
     {
         enum {UNKNOWN, NOT_CONNECTED, CONNECTED} powerState = UNKNOWN;

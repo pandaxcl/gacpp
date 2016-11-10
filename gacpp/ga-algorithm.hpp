@@ -1,10 +1,12 @@
 
 namespace algorithm {
 
-    template<typename Resident, typename Real=double, typename Random = std::default_random_engine>
+    template<typename Resident, typename Operation=typename Resident::gene_type, typename Real=double, typename Random = std::default_random_engine>
     struct population {
         typedef std::vector<Resident>   residents_type;
         typedef Random                  random_engine;
+        typedef Operation               operation_type;
+        
         residents_type      *residents_ptr = nullptr;
         residents_type      *residents_next_ptr = nullptr;
         struct {
@@ -28,7 +30,7 @@ namespace algorithm {
         {
             auto&&residents = *this->residents_ptr;
             for (auto&&resident:residents)
-                resident.random_initialize(random);
+                resident.template random_initialize<operation_type>(random);
             this->fitnesses.resize(residents.size());
         }
         Real compute_fitnesses()
@@ -37,7 +39,7 @@ namespace algorithm {
             Real fTotalFitness = Real(0);
             for (size_t i=0; i<residents.size(); i++)
             {
-                this->fitnesses[i] = residents[i].compute_fitness(random);
+                this->fitnesses[i] = residents[i].template compute_fitness<operation_type,Real>(random);
                 fTotalFitness += this->fitnesses[i];
             }
             return fTotalFitness;
@@ -71,9 +73,14 @@ namespace algorithm {
                     auto it_2 = select_one();
                     if (it_1 != it_2)
                     {
-                        auto && result = it_1->crossover(*it_2, random);
-                        residents_next[i*2+0] = result.first;
-                        residents_next[i*2+1] = result.second;
+                        residents_next[i*2+0] = *it_1;
+                        residents_next[i*2+1] = *it_2;
+                        
+                        auto&&A = residents_next[i*2+0];
+                        auto&&B = residents_next[i*2+1];
+                        
+                        A.template crossover<operation_type>(B, random);
+                        
                         i++;
                     }
                 }
@@ -85,7 +92,7 @@ namespace algorithm {
             {
                 for (auto&&resident:residents)
                 {
-                    resident.mutate(random);
+                    resident.template mutate<operation_type>(random);
                 }
             }
         }
