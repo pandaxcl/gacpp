@@ -36,20 +36,13 @@ namespace model {
 //        }
     };
     
-    template <typename Gene, size_t N_gene, typename Block/* =size_t */>
+    template <typename Gene>
     struct chromosome
     {
-        typedef Gene                            gene_type;
-        typedef chromosome<Gene, N_gene, Block> self_type;
+        typedef Gene             gene_type;
+        typedef chromosome<Gene> self_type;
         
-        enum {
-            N_gene_count = N_gene,
-            N_block_count = sizeof(Gene)/sizeof(Block)*N_gene_count,
-        };
-        union {
-            Block blocks[N_block_count];
-            Gene  genes[N_gene_count];
-        };
+        std::vector<Gene>        genes;
         typedef decltype(std::begin(genes)) gene_iterator;
         
         ////////////////////////////////////////////////////////////////////////////////

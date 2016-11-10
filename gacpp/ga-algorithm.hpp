@@ -22,6 +22,20 @@ namespace algorithm {
             members_ptr = &buffer.members_front;
             members_next_ptr = &buffer.members_back;
         }
+        team(size_t n):team()
+        {
+            resize(n);
+        }
+        size_t size()
+        {
+            return this->members_ptr->size();
+        }
+        void resize(size_t n)
+        {
+            this->buffer.members_front.resize(n);
+            this->buffer.members_back.resize(n);
+            this->fitnesses.resize(n);
+        }
         void swap_buffers()
         {
             std::swap(members_ptr, members_next_ptr);
@@ -31,7 +45,7 @@ namespace algorithm {
             auto&&members = *this->members_ptr;
             for (auto&&member:members)
                 member.template random_initialize<operation_type>(random);
-            this->fitnesses.resize(members.size());
+            
         }
         Real compute_fitnesses()
         {
@@ -71,18 +85,18 @@ namespace algorithm {
                 {
                     auto it_1 = select_one();
                     auto it_2 = select_one();
+                    
+                    members_next[i*2+0] = *it_1;
+                    members_next[i*2+1] = *it_2;
+                    
                     if (it_1 != it_2)
                     {
-                        members_next[i*2+0] = *it_1;
-                        members_next[i*2+1] = *it_2;
-                        
                         auto&&A = members_next[i*2+0];
                         auto&&B = members_next[i*2+1];
                         
                         A.template crossover<operation_type>(B, random);
-                        
-                        i++;
                     }
+                    i++;
                 }
             }
             // 3. swap buffers

@@ -6,21 +6,20 @@
 #include "gacpp/ga-fsm.hpp"
 #include <iostream>
 
-const size_t N = 4;
 struct Gene
 {
-    enum class T:size_t {INITIAL, STATE, TRANSITION} type; // 0
+    enum class T:size_t {INITIAL, STATE, TRANSITION} type;
     struct {
-        size_t state = 0; // 1
+        size_t state = 0;
     }initial;
     struct {
-        size_t on_enter[N]; // [2, 2+N)
-        size_t on_leave[N]; // [2+N, 2+2N)
+        std::vector<size_t> on_enter;
+        std::vector<size_t> on_leave;
     }state;
     struct {
-        size_t condition;   // 2+2N+0
-        size_t target_state;// 2+2N+1
-        size_t actions[N];  // [2+2N+2, 2+2N+2+N)
+        size_t condition;
+        size_t target_state;
+        std::vector<size_t> actions;
     }transition;
     
     template<typename Random>
@@ -169,10 +168,13 @@ SCENARIO("", "[FSM]")
     
     GIVEN("living room's lights")
     {
-        typedef gacpp::model::chromosome<Gene, 100, size_t> chromosome_t;
+        typedef gacpp::model::chromosome<Gene> chromosome_t;
         typedef gacpp::algorithm::team<chromosome_t> team_t;
         
-        team_t GA;
+        team_t GA(100);
+        REQUIRE(GA.size() == 100);
+        GA.resize(200);
+        REQUIRE(GA.size() == 200);
         GA.random_initialize();
         GA.epoch();
     }
