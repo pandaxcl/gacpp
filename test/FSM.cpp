@@ -170,9 +170,9 @@ SCENARIO("", "[FSM]")
     GIVEN("living room's lights")
     {
         typedef gacpp::model::chromosome<Gene, 100, size_t> chromosome_t;
-        typedef gacpp::algorithm::population<chromosome_t> population_t;
+        typedef gacpp::algorithm::team<chromosome_t> team_t;
         
-        population_t GA;
+        team_t GA;
         GA.random_initialize();
         GA.epoch();
     }

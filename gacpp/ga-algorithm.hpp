@@ -1,45 +1,45 @@
 
 namespace algorithm {
 
-    template<typename Resident, typename Operation=typename Resident::gene_type, typename Real=double, typename Random = std::default_random_engine>
-    struct population {
-        typedef std::vector<Resident>   residents_type;
-        typedef Random                  random_engine;
-        typedef Operation               operation_type;
+    template<typename Member, typename Operation=typename Member::gene_type, typename Real=double, typename Random = std::default_random_engine>
+    struct team {
+        typedef std::vector<Member>   members_type;
+        typedef Random                random_engine;
+        typedef Operation             operation_type;
         
-        residents_type      *residents_ptr = nullptr;
-        residents_type      *residents_next_ptr = nullptr;
+        members_type      *members_ptr = nullptr;
+        members_type      *members_next_ptr = nullptr;
         struct {
-            residents_type  residents_front;
-            residents_type  residents_back;
+            members_type  members_front;
+            members_type  members_back;
         }buffer;
         
         std::vector<Real>   fitnesses;
         random_engine       random;
         
-        population()
+        team()
         {
-            residents_ptr = &buffer.residents_front;
-            residents_next_ptr = &buffer.residents_back;
+            members_ptr = &buffer.members_front;
+            members_next_ptr = &buffer.members_back;
         }
         void swap_buffers()
         {
-            std::swap(residents_ptr, residents_next_ptr);
+            std::swap(members_ptr, members_next_ptr);
         }
         void random_initialize()
         {
-            auto&&residents = *this->residents_ptr;
-            for (auto&&resident:residents)
-                resident.template random_initialize<operation_type>(random);
-            this->fitnesses.resize(residents.size());
+            auto&&members = *this->members_ptr;
+            for (auto&&member:members)
+                member.template random_initialize<operation_type>(random);
+            this->fitnesses.resize(members.size());
         }
         Real compute_fitnesses()
         {
-            auto&&residents = *this->residents_ptr;
+            auto&&members = *this->members_ptr;
             Real fTotalFitness = Real(0);
-            for (size_t i=0; i<residents.size(); i++)
+            for (size_t i=0; i<members.size(); i++)
             {
-                this->fitnesses[i] = residents[i].template compute_fitness<operation_type,Real>(random);
+                this->fitnesses[i] = members[i].template compute_fitness<operation_type,Real>(random);
                 fTotalFitness += this->fitnesses[i];
             }
             return fTotalFitness;
@@ -47,37 +47,37 @@ namespace algorithm {
         
         void epoch()
         {
-            auto&&residents = *this->residents_ptr;
-            auto&&residents_next = *this->residents_next_ptr;
+            auto&&members = *this->members_ptr;
+            auto&&members_next = *this->members_next_ptr;
             
             // 1. compute fitness
             Real fTotalFitness = this->compute_fitnesses();
             
             // 2. select to crossover
             {
-                auto select_one = [this, fTotalFitness, &residents]
+                auto select_one = [this, fTotalFitness, &members]
                 {
-                    typedef typename residents_type::iterator resident_iterator;
+                    typedef typename members_type::iterator member_iterator;
                     Real fSlice = static_cast<Real>(random())/random.max()*fTotalFitness;
-                    return selection::roulette_one(std::begin(residents), std::end(residents), fSlice,
-                                                   [this,&residents](resident_iterator it)
+                    return selection::roulette_one(std::begin(members), std::end(members), fSlice,
+                                                   [this,&members](member_iterator it)
                     {
-                        auto i = std::distance(std::begin(residents), it);
+                        auto i = std::distance(std::begin(members), it);
                         return this->fitnesses.at(i);
                     });
                 };
-                assert(0 == residents.size()%2);// must be even number
-                for (size_t i=0; i<residents.size()/2; )
+                assert(0 == members.size()%2);// must be even number
+                for (size_t i=0; i<members.size()/2; )
                 {
                     auto it_1 = select_one();
                     auto it_2 = select_one();
                     if (it_1 != it_2)
                     {
-                        residents_next[i*2+0] = *it_1;
-                        residents_next[i*2+1] = *it_2;
+                        members_next[i*2+0] = *it_1;
+                        members_next[i*2+1] = *it_2;
                         
-                        auto&&A = residents_next[i*2+0];
-                        auto&&B = residents_next[i*2+1];
+                        auto&&A = members_next[i*2+0];
+                        auto&&B = members_next[i*2+1];
                         
                         A.template crossover<operation_type>(B, random);
                         
@@ -90,9 +90,9 @@ namespace algorithm {
             
             // 4. mutate
             {
-                for (auto&&resident:residents)
+                for (auto&&member:members)
                 {
-                    resident.template mutate<operation_type>(random);
+                    member.template mutate<operation_type>(random);
                 }
             }
         }
