@@ -6,32 +6,67 @@
 #include "gacpp/ga-fsm.hpp"
 #include <iostream>
 
+template<int N_states, int N_conditions, int N_actions>
 struct Gene
 {
+    typedef std::vector<size_t> actions_type;
     enum class T:size_t {INITIAL, STATE, TRANSITION} type;
     struct {
-        size_t state = 0;
+        size_t          state = 0;
     }initial;
     struct {
-        std::vector<size_t> on_enter;
-        std::vector<size_t> on_leave;
+        actions_type    on_enter;
+        actions_type    on_leave;
     }state;
     struct {
-        size_t condition;
-        size_t target_state;
-        std::vector<size_t> actions;
+        size_t          condition;
+        size_t          target_state;
+        actions_type    actions;
     }transition;
     
-    template<typename Random>
-    void random_initialize(Random&&random)
+//    template<typename Random>
+//    void random_initialize(Random&&random)
+//    {
+//    }
+    template<typename ForwardIterator, typename Random>
+    static void random_initialize(ForwardIterator begin, ForwardIterator end, Random&&random)
     {
+        auto random_generate_actions = [&random](actions_type&actions){
+            actions.resize(random()%5);
+            for (auto&&action:actions)
+                action = random()%N_actions;
+        };
+        auto random_initialize_for_initial = [&random](ForwardIterator it){
+            auto&&self = *it;
+            self.type = T::INITIAL;
+            self.initial.state = random()%N_states;
+        };
+        
+        auto random_initialize_for_state = [&random,&random_generate_actions](ForwardIterator it){
+            auto&&self = *it;
+            self.type = T::STATE;
+            random_generate_actions(self.state.on_enter);
+            random_generate_actions(self.state.on_leave);
+        };
+        auto random_initialize_for_transition = [&random,&random_generate_actions](ForwardIterator it){
+            auto&&self = *it;
+            self.type = T::TRANSITION;
+            self.transition.condition = random()%N_conditions;
+            self.transition.target_state = random()%N_states;
+            random_generate_actions(self.transition.actions);
+        };
+        for (auto it=begin; it!=end; it++)
+        {
+            size_t index = std::distance(begin, it);
+            if (0 == index)
+                random_initialize_for_initial(it);
+            else if (1 <= index && index < 1+N_states)
+                random_initialize_for_state(it);
+            else
+                random_initialize_for_transition(it);
+        }
         
     }
-//    template<typename ForwardIterator, typename Random>
-//    static void random_initialize(ForwardIterator begin, ForwardIterator end, Random&&random)
-//    {
-//        
-//    }
     template<typename ForwardIterator, typename Random>
     static double compute_fitness(ForwardIterator begin, ForwardIterator end, Random&&random)
     {
@@ -168,7 +203,11 @@ SCENARIO("", "[FSM]")
     
     GIVEN("living room's lights")
     {
-        typedef gacpp::model::chromosome<Gene> chromosome_t;
+        const int N_states = 10;
+        const int N_conditions = 2;
+        const int N_actions = 2;
+        typedef Gene<N_states, N_conditions, N_actions> gene_t;
+        typedef gacpp::model::chromosome<gene_t> chromosome_t;
         typedef gacpp::algorithm::team<chromosome_t> team_t;
         
         team_t GA(100);

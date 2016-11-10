@@ -72,7 +72,7 @@ namespace model {
         }
         
         template<typename G>
-        void random_initialize(...) { }
+        void random_initialize(...);
         
         ////////////////////////////////////////////////////////////////////////////////
         
