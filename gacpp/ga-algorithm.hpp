@@ -104,7 +104,7 @@ namespace algorithm {
             
             // 4. mutate
             {
-                for (auto&&member:members)
+                for (auto&&member:members_next)
                 {
                     member.template mutate<operation_type>(random);
                 }

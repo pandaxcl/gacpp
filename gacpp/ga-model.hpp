@@ -36,6 +36,68 @@ namespace model {
 //        }
     };
     
+    template<typename Unit/*int or float*/, typename Function, typename Real=double>
+    struct simple_gene
+    {
+        Unit _unit;
+        Unit&&unit() { return _unit; }
+        template<typename Random>
+        static Real rate(Random&&random)
+        {
+            return static_cast<Real>(random())/static_cast<Real>(random.max());
+        }
+        //template<typename Random> void random_initialize(Random&&random) { }
+        template<typename ForwardIterator, typename Random>
+        static void random_initialize(ForwardIterator begin, ForwardIterator end, Random&&random)
+        {
+            static_assert(!std::is_void<decltype(std::declval<Function>().mutate(0,std::declval<Random>()))>::value,
+                          "Function must have mutate(int,random)->Unit function");
+            for (auto it=begin; it!=end; it++)
+            {
+                auto i = std::distance(begin, it);
+                it->_unit = Function::mutate(i, random);
+            }
+        }
+        template<typename ForwardIterator, typename Random>
+        static Real compute_fitness(ForwardIterator begin, ForwardIterator end, Random&&random)
+        {
+            static_assert(std::is_floating_point<decltype(std::declval<Function>().fitness(begin,end,random))>::value,
+                          "Function must have fitness(begin,end,random)->Real function");
+            return Function::fitness(begin, end, random);
+        }
+        
+        template<typename ForwardIterator, typename Random>
+        static void crossover(ForwardIterator begin1, ForwardIterator end1,
+                              ForwardIterator begin2, ForwardIterator end2, Random&&random)
+        {
+            static_assert(std::is_floating_point<decltype(std::declval<Function>().rate_for_crossover_with_single_point())>::value,
+                          "Function must have mutate_rate()->Real function");
+            assert(std::distance(begin1, end1) > 2);
+            
+            if (rate(random) < Function::rate_for_crossover_with_single_point())
+            {
+                auto i = random()%(std::distance(begin1, end1)-1)+1;
+                crossover::with_single_point(begin1, end1, begin2, end2, i);
+            }
+        }
+        //template<typename Random> void mutate(Random&&random) { }
+        template<typename ForwardIterator, typename Random>
+        static void mutate(ForwardIterator begin, ForwardIterator end, Random&&random)
+        {
+            static_assert(!std::is_void<decltype(std::declval<Function>().mutate(0,std::declval<Random>()))>::value,
+                          "Function must have mutate(int,random)->Unit function");
+            static_assert(std::is_floating_point<decltype(std::declval<Function>().rate_for_mutate())>::value,
+                          "Function must have mutate_rate()->Real function");
+            
+            for (auto it=begin; it!=end; it++)
+            {
+                auto i = std::distance(begin, it);
+                if (rate(random) < Function::rate_for_mutate())
+                    it->_unit = Function::mutate(i, random);
+            }
+        }
+    };
+    
     template <typename Gene>
     struct chromosome
     {

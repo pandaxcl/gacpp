@@ -337,3 +337,43 @@ SCENARIO("c++11", "[GA]")
         }
     }
 }
+
+
+SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
+{
+    GIVEN("simple_gene")
+    {
+        typedef std::default_random_engine Random;
+        typedef char   Unit;
+        typedef double Real;
+        
+        struct Function
+        {
+            static Real rate_for_crossover_with_single_point()
+            {
+                return 0.4;
+            }
+            static Real rate_for_mutate()
+            {
+                return 0.044;
+            }
+            
+            static Real mutate(int i, Random&random)
+            {
+                return 0;
+            }
+            typedef gacpp::model::simple_gene<Unit, Function, Real> gene_t;
+            typedef gacpp::model::chromosome<gene_t> chromosome_t;
+            typedef chromosome_t::gene_iterator ForwardIterator;
+            static Real fitness(ForwardIterator begin, ForwardIterator end, Random&random)
+            {
+                return 0;
+            }
+        };
+        typedef gacpp::model::simple_gene<Unit, Function, Real> gene_t;
+        typedef gacpp::model::chromosome<gene_t> chromosome_t;
+        gacpp::algorithm::team<chromosome_t> GA(100);
+        GA.random_initialize();
+        GA.epoch();
+    }
+}
