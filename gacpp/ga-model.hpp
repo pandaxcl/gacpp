@@ -142,7 +142,7 @@ namespace model {
                 }
             }
             template<typename F>
-            static void random_initialize(...);//{}
+            static void random_initialize(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             template<typename F, typename ForwardIterator, typename Random>
             static typename std::enable_if<simple_gene_concept::template crossover_with_single_point<F,Random>::enabled>::type
@@ -188,7 +188,7 @@ namespace model {
                 }
             }
             template<typename F>
-            static void crossover_for_chromosome_with_only_one_gene(...);//{}
+            static void crossover_for_chromosome_with_only_one_gene(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             
             template<typename F, typename ForwardIterator, typename Random>
@@ -207,7 +207,7 @@ namespace model {
                 }
             }
             template<typename F>
-            static void mutate(...);//{}
+            static void mutate(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
         };
     };

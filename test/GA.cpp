@@ -345,26 +345,28 @@ struct Sample//:private gacpp::model::simple_gene<Sample<Value,Random,Real>>::co
 {
     typedef Value value_type;
     typedef Real real_type;
+    typedef Random random_engine;
     
     //static Real rate_for_crossover_with_single_point() { return 0.4; }
     static real_type rate_for_crossover_chromosome_with_only_one_gene() { return 0.4; }
     static real_type rate_for_mutate() { return 0.044; }
 
-    static value_type&& random_initialize(int i, Random random)
+    template<typename R>
+    static value_type&& random_initialize(int i, R&&random)
     {
         auto t = static_cast<Real>(random())/random.max();
         return gacpp::util::value_in_range_with_ratio(-1.0, 2.0, t);
     }
-    template<typename ForwardIterator>
-    static value_type&& mutate(ForwardIterator it, Random random)
+    template<typename ForwardIterator, typename R>
+    static value_type&& mutate(ForwardIterator it, R&&random)
     {
         auto t = static_cast<Real>(random())/random.max();
         auto&&sign = gacpp::util::random_sign<Real>(random);
         auto&&step = 0.1;
         return gacpp::util::value_clamped_in_range(-1.0, 2.0, it->value()+sign*t*step);
     }
-    template<typename ForwardIterator>
-    static real_type fitness(ForwardIterator begin, ForwardIterator end, Random&random)
+    template<typename ForwardIterator, typename R>
+    static real_type fitness(ForwardIterator begin, ForwardIterator end, R&&random)
     {
         assert(std::distance(begin, end) == 1);
         auto&&x = static_cast<real_type&>(*begin);
