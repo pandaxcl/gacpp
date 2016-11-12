@@ -5,6 +5,7 @@
 
 namespace gacpp {
 
+#include "ga-util.hpp"
 #include "ga-traits.hpp"
 #include "ga-selection.hpp"
 #include "ga-crossover.hpp"

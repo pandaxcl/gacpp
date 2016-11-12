@@ -207,7 +207,7 @@ SCENARIO("", "[FSM]")
         const int N_conditions = 2;
         const int N_actions = 2;
         typedef Gene<N_states, N_conditions, N_actions> gene_t;
-        typedef gacpp::model::chromosome<gene_t> chromosome_t;
+        typedef gacpp::model::chromosome<gene_t,10> chromosome_t;
         typedef gacpp::algorithm::team<chromosome_t> team_t;
         
         team_t GA(100);
