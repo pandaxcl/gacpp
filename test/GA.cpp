@@ -340,17 +340,17 @@ SCENARIO("c++11", "[GA]")
     }
 }
 
-struct Sample
+struct FindMaxValue
 {
     typedef std::default_random_engine random_engine;
     typedef double value_type;
     typedef double real_type;
-    typedef gacpp::model::simple_gene<Sample> gene_t;
+    typedef gacpp::model::simple_gene<FindMaxValue> gene_t;
     typedef gacpp::model::chromosome<gene_t, 1> chromosome_t;
     typedef chromosome_t::gene_iterator gene_iterator;
     typedef gacpp::algorithm::team<chromosome_t> team_t;
     
-    //static Real rate_for_crossover_with_single_point() { return 0.4; }
+    //static real_type rate_for_crossover_with_single_point() { return 0.4; }
     static real_type rate_for_crossover_chromosome_with_only_one_gene() { return 0.4; }
     static real_type rate_for_mutate() { return 0.044; }
 
@@ -381,13 +381,19 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
 {
     GIVEN("simple_gene")
     {
-        static_assert(gacpp::model::simple_gene_concept::random_initialize<Sample>::enabled, "");
-        static_assert(gacpp::model::simple_gene_concept::mutate<Sample>::enabled, "");
-        static_assert(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<Sample>::enabled, "");
-        static_assert(!gacpp::model::simple_gene_concept::crossover_with_single_point<Sample>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::random_initialize<FindMaxValue>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::mutate<FindMaxValue>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<FindMaxValue>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::fitness<FindMaxValue>::enabled, "");
+        static_assert(!gacpp::model::simple_gene_concept::crossover_with_single_point<FindMaxValue>::enabled, "");
         
+        REQUIRE(gacpp::model::simple_gene_concept::random_initialize<FindMaxValue>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::mutate<FindMaxValue>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<FindMaxValue>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::fitness<FindMaxValue>::enabled);
+        REQUIRE_FALSE(gacpp::model::simple_gene_concept::crossover_with_single_point<FindMaxValue>::enabled);
         
-        Sample::team_t GA(100);
+        FindMaxValue::team_t GA(100);
         GA.random_initialize();
         for (auto i=0; i<1000; i++)
         {
