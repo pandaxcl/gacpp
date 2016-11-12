@@ -1,6 +1,6 @@
 namespace model {
 
-    struct sample_gene
+    struct basic_gene
     {
         template<typename Random>
         void random_initialize(Random&&random)
@@ -38,19 +38,23 @@ namespace model {
     
     struct simple_gene_concept
     {
-        template<typename F, typename Random>
+        template<typename F>
         struct random_initialize
         {
+            typedef typename F::random_engine Random;
             template<typename X> static typename std::enable_if<
             /**/!std::is_void<decltype(std::declval<X>().random_initialize(0,std::declval<Random>()))>::value
             >::type check(int);
             template<typename X> static std::false_type check(...);
             enum { enabled = std::is_void<decltype(check<F>(0))>::value };
+            
+            //template<typename R> static value_type&& random_initialize(int i, R&&random) { }
         };
         
-        template<typename F, typename Random>
+        template<typename F>
         struct crossover_with_single_point
         {
+            typedef typename F::random_engine Random;
             template<typename X> static typename std::enable_if<
             /**/std::is_floating_point<decltype(std::declval<X>().rate_for_crossover_with_single_point())>::value
             >::type check(int);
@@ -58,9 +62,10 @@ namespace model {
             enum { enabled = std::is_void<decltype(check<F>(0))>::value };
         };
         
-        template<typename F, typename Random>
+        template<typename F>
         struct crossover_for_chromosome_with_only_one_gene
         {
+            typedef typename F::random_engine Random;
             template<typename X> static typename std::enable_if<
             /**/std::is_floating_point<decltype(std::declval<F>().rate_for_crossover_chromosome_with_only_one_gene())>::value
             >::type check(int);
@@ -68,9 +73,11 @@ namespace model {
             enum { enabled = std::is_void<decltype(check<F>(0))>::value };
         };
         
-        template<typename F, typename Random, typename ForwardIterator>
+        template<typename F>
         struct mutate
         {
+            typedef typename F::random_engine Random;
+            typedef typename F::gene_iterator ForwardIterator;
             template<typename X,typename Iterator> static typename std::enable_if<
             /**/!std::is_void<decltype(std::declval<X>().mutate(std::declval<Iterator>(),std::declval<Random>()))>::value
             /**/&&
@@ -130,7 +137,7 @@ namespace model {
         struct detail {
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             template<typename F, typename ForwardIterator, typename Random>
-            static typename std::enable_if<simple_gene_concept::template random_initialize<F,Random>::enabled>::type
+            static typename std::enable_if<simple_gene_concept::template random_initialize<F>::enabled>::type
             random_initialize(ForwardIterator begin, ForwardIterator end, Random&&random)
             {
                 static_assert(!std::is_void<decltype(std::declval<Sample>().random_initialize(0,std::declval<Random>()))>::value,
@@ -145,7 +152,7 @@ namespace model {
             static void random_initialize(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             template<typename F, typename ForwardIterator, typename Random>
-            static typename std::enable_if<simple_gene_concept::template crossover_with_single_point<F,Random>::enabled>::type
+            static typename std::enable_if<simple_gene_concept::template crossover_with_single_point<F>::enabled>::type
             crossover_with_single_point(ForwardIterator begin1, ForwardIterator end1,
                                         ForwardIterator begin2, ForwardIterator end2, Random&&random)
             {
@@ -169,7 +176,7 @@ namespace model {
             static void crossover_with_single_point(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             template<typename F, typename ForwardIterator, typename Random>
-            static typename std::enable_if<simple_gene_concept::template crossover_for_chromosome_with_only_one_gene<F,Random>::enabled>::type
+            static typename std::enable_if<simple_gene_concept::template crossover_for_chromosome_with_only_one_gene<F>::enabled>::type
             crossover_for_chromosome_with_only_one_gene(ForwardIterator begin1, ForwardIterator end1,
                                                         ForwardIterator begin2, ForwardIterator end2, Random&&random)
             {
@@ -192,7 +199,7 @@ namespace model {
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             
             template<typename F, typename ForwardIterator, typename Random>
-            static typename std::enable_if<simple_gene_concept::template mutate<F,Random,ForwardIterator>::enabled>::type
+            static typename std::enable_if<simple_gene_concept::template mutate<F>::enabled>::type
             mutate(ForwardIterator begin, ForwardIterator end, Random&&random)
             {
                 static_assert(!std::is_void<decltype(std::declval<Sample>().mutate(std::declval<ForwardIterator>(),std::declval<Random>()))>::value,

@@ -340,12 +340,15 @@ SCENARIO("c++11", "[GA]")
     }
 }
 
-template<typename Value, typename Random, typename Real>
-struct Sample//:private gacpp::model::simple_gene<Sample<Value,Random,Real>>::concept::random
+struct Sample
 {
-    typedef Value value_type;
-    typedef Real real_type;
-    typedef Random random_engine;
+    typedef std::default_random_engine random_engine;
+    typedef double value_type;
+    typedef double real_type;
+    typedef gacpp::model::simple_gene<Sample> gene_t;
+    typedef gacpp::model::chromosome<gene_t, 1> chromosome_t;
+    typedef chromosome_t::gene_iterator gene_iterator;
+    typedef gacpp::algorithm::team<chromosome_t> team_t;
     
     //static Real rate_for_crossover_with_single_point() { return 0.4; }
     static real_type rate_for_crossover_chromosome_with_only_one_gene() { return 0.4; }
@@ -354,14 +357,14 @@ struct Sample//:private gacpp::model::simple_gene<Sample<Value,Random,Real>>::co
     template<typename R>
     static value_type&& random_initialize(int i, R&&random)
     {
-        auto t = static_cast<Real>(random())/random.max();
+        auto t = static_cast<real_type>(random())/random.max();
         return gacpp::util::value_in_range_with_ratio(-1.0, 2.0, t);
     }
     template<typename ForwardIterator, typename R>
     static value_type&& mutate(ForwardIterator it, R&&random)
     {
-        auto t = static_cast<Real>(random())/random.max();
-        auto&&sign = gacpp::util::random_sign<Real>(random);
+        auto t = static_cast<real_type>(random())/random.max();
+        auto&&sign = gacpp::util::random_sign<real_type>(random);
         auto&&step = 0.1;
         return gacpp::util::value_clamped_in_range(-1.0, 2.0, it->value()+sign*t*step);
     }
@@ -378,19 +381,13 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
 {
     GIVEN("simple_gene")
     {
-        typedef std::default_random_engine Random;
-        typedef double Unit;
-        typedef double Real;
+        static_assert(gacpp::model::simple_gene_concept::random_initialize<Sample>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::mutate<Sample>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<Sample>::enabled, "");
+        static_assert(!gacpp::model::simple_gene_concept::crossover_with_single_point<Sample>::enabled, "");
         
-        typedef Sample<Unit, Random, Real> sample_t;
-        typedef gacpp::model::simple_gene<sample_t> gene_t;
-        typedef gacpp::model::chromosome<gene_t, 1> chromosome_t;
         
-        static_assert(gacpp::model::simple_gene_concept::random_initialize<sample_t, Random>::enabled, "");
-        static_assert(gacpp::model::simple_gene_concept::mutate<sample_t, Random, chromosome_t::gene_iterator>::enabled, "");
-        static_assert(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<sample_t, Random>::enabled, "");
-        
-        gacpp::algorithm::team<chromosome_t> GA(100);
+        Sample::team_t GA(100);
         GA.random_initialize();
         for (auto i=0; i<1000; i++)
         {
