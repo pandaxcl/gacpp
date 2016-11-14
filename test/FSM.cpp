@@ -6,26 +6,40 @@
 #include "gacpp/ga-fsm.hpp"
 #include <iostream>
 
-template<int N_states, int N_conditions, int N_actions>
-struct Gene
+template<int N_max_states, int N_conditions, int N_actions>
+struct FindFiniteStateMachine
 {
-    typedef std::vector<size_t> actions_type;
-    enum class T:size_t {INITIAL, STATE, TRANSITION} type;
-    struct {
-        size_t          state = 0;
-    }initial;
-    struct {
-        actions_type    on_enter;
-        actions_type    on_leave;
-    }state;
-    struct {
-        size_t          condition;
-        size_t          target_state;
-        actions_type    actions;
-    }transition;
+    typedef FindFiniteStateMachine this_type;
     
-//    template<typename Random>
-//    void random_initialize(Random&&random)
+    typedef std::vector<size_t> actions_type;
+   
+    struct Value
+    {
+        enum class T:size_t {INITIAL, STATE, TRANSITION} type;
+        struct {
+            size_t          state = 0;
+        }initial;
+        struct {
+            actions_type    on_enter;
+            actions_type    on_leave;
+        }state;
+        struct {
+            size_t          condition;
+            size_t          target_state;
+            actions_type    actions;
+        }transition;
+    };
+    typedef Value value_type;
+    
+    typedef double real_type;
+    typedef gacpp::model::basic_gene<this_type> gene_type;
+    typedef std::default_random_engine random_engine;
+    typedef gacpp::model::chromosome<gene_type,N_max_states> chromosome_type;
+    typedef typename chromosome_type::gene_iterator gene_iterator;
+    typedef gacpp::algorithm::team<chromosome_type, this_type> team_t;
+    
+//    template<typename ForwardIterator, typename Random>
+//    void random_initialize(ForwardIterator it, Random&&random)
 //    {
 //    }
     template<typename ForwardIterator, typename Random>
@@ -37,22 +51,22 @@ struct Gene
                 action = random()%N_actions;
         };
         auto random_initialize_for_initial = [&random](ForwardIterator it){
-            auto&&self = *it;
-            self.type = T::INITIAL;
-            self.initial.state = random()%N_states;
+            auto&&self = it->_value;
+            self.type = value_type::T::INITIAL;
+            self.initial.state = random()%N_max_states;
         };
         
         auto random_initialize_for_state = [&random,&random_generate_actions](ForwardIterator it){
-            auto&&self = *it;
-            self.type = T::STATE;
+            auto&&self = it->_value;
+            self.type = value_type::T::STATE;
             random_generate_actions(self.state.on_enter);
             random_generate_actions(self.state.on_leave);
         };
         auto random_initialize_for_transition = [&random,&random_generate_actions](ForwardIterator it){
-            auto&&self = *it;
-            self.type = T::TRANSITION;
+            auto&&self = it->_value;
+            self.type = value_type::T::TRANSITION;
             self.transition.condition = random()%N_conditions;
-            self.transition.target_state = random()%N_states;
+            self.transition.target_state = random()%N_max_states;
             random_generate_actions(self.transition.actions);
         };
         for (auto it=begin; it!=end; it++)
@@ -60,7 +74,7 @@ struct Gene
             size_t index = std::distance(begin, it);
             if (0 == index)
                 random_initialize_for_initial(it);
-            else if (1 <= index && index < 1+N_states)
+            else if (1 <= index && index < 1+N_max_states)
                 random_initialize_for_state(it);
             else
                 random_initialize_for_transition(it);
@@ -68,9 +82,9 @@ struct Gene
         
     }
     template<typename ForwardIterator, typename Random>
-    static double compute_fitness(ForwardIterator begin, ForwardIterator end, Random&&random)
+    static real_type compute_fitness(ForwardIterator begin, ForwardIterator end, Random&&random)
     {
-        return double(0);
+        return real_type(0);
     }
     
     template<typename ForwardIterator, typename Random>
@@ -79,8 +93,8 @@ struct Gene
     {
         
     }
-    template<typename Random>
-    void mutate(Random&&random)
+    template<typename ForwardIterator, typename Random>
+    static void mutate(ForwardIterator it, Random&&random)
     {
         
     }
@@ -203,14 +217,17 @@ SCENARIO("", "[FSM]")
     
     GIVEN("living room's lights")
     {
-        const int N_states = 10;
+        const int N_max_states = 10;
         const int N_conditions = 2;
         const int N_actions = 2;
-        typedef Gene<N_states, N_conditions, N_actions> gene_t;
-        typedef gacpp::model::chromosome<gene_t,10> chromosome_t;
-        typedef gacpp::algorithm::team<chromosome_t> team_t;
+        typedef FindFiniteStateMachine<N_max_states, N_conditions, N_actions> Solution;
+        static_assert(gacpp::model::basic_gene_concept::random_initialize::range<Solution>::enabled, "");
+        static_assert(gacpp::model::basic_gene_concept::compute_fitness::range<Solution>::enabled, "");
+        static_assert(gacpp::model::basic_gene_concept::crossover::two_ranges<Solution>::enabled, "");
+        static_assert(gacpp::model::basic_gene_concept::mutate::single<Solution>::enabled, "");
         
-        team_t GA(100);
+        
+        Solution::team_t GA(100);
         REQUIRE(GA.size() == 100);
         GA.resize(200);
         REQUIRE(GA.size() == 200);

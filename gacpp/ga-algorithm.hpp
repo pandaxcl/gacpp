@@ -1,11 +1,11 @@
 
 namespace algorithm {
 
-    template<typename Member, typename Operation=typename Member::gene_type, typename Real=double, typename Random = std::default_random_engine>
+    template<typename Member, typename Solution, typename Real=double, typename Random = typename Solution::random_engine>
     struct team {
         typedef std::vector<Member>   members_type;
         typedef Random                random_engine;
-        typedef Operation             operation_type;
+        typedef Solution              solution_type;
         
         members_type      *members_ptr = nullptr;
         members_type      *members_next_ptr = nullptr;
@@ -44,7 +44,7 @@ namespace algorithm {
         {
             auto&&members = *this->members_ptr;
             for (auto&&member:members)
-                member.template random_initialize<operation_type>(random);
+                member.template random_initialize<solution_type>(random);
             
         }
         Real compute_fitnesses()
@@ -53,7 +53,7 @@ namespace algorithm {
             Real fTotalFitness = Real(0);
             for (size_t i=0; i<members.size(); i++)
             {
-                this->fitnesses[i] = members[i].template compute_fitness<operation_type,Real>(random);
+                this->fitnesses[i] = members[i].template compute_fitness<solution_type,Real>(random);
                 fTotalFitness += this->fitnesses[i];
             }
             return fTotalFitness;
@@ -94,7 +94,7 @@ namespace algorithm {
                         auto&&A = members_next[i*2+0];
                         auto&&B = members_next[i*2+1];
                         
-                        A.template crossover<operation_type>(B, random);
+                        A.template crossover<solution_type>(B, random);
                     }
                     i++;
                 }
@@ -106,7 +106,7 @@ namespace algorithm {
             {
                 for (auto&&member:members_next)
                 {
-                    member.template mutate<operation_type>(random);
+                    member.template mutate<solution_type>(random);
                 }
             }
         }
