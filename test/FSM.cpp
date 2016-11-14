@@ -35,7 +35,7 @@ struct FindFiniteStateMachine
     typedef gacpp::model::basic_gene<this_type> gene_type;
     typedef std::default_random_engine random_engine;
     typedef gacpp::model::chromosome<gene_type,N_max_states> chromosome_type;
-    typedef typename chromosome_type::gene_iterator gene_iterator;
+    typedef typename chromosome_type::iterator gene_iterator;
     typedef gacpp::algorithm::team<chromosome_type, this_type> team_t;
     
 //    template<typename ForwardIterator, typename Random>

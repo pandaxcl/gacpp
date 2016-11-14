@@ -353,33 +353,19 @@ namespace model {
     };
     
     template <typename Gene, int _N_gene_count>
-    struct chromosome
+    struct chromosome:public std::vector<Gene>
     {
-        typedef chromosome this_type;
-        typedef Gene       gene_type;
+        typedef chromosome              this_type;
+        typedef Gene                    gene_type;
+        typedef std::vector<gene_type>  super_type;
+        
         enum { N_gene_count = _N_gene_count };
         
-        std::vector<Gene> genes;
-        typedef decltype(std::begin(genes)) gene_iterator;
-        
-        chromosome(std::size_t n):genes(n)
+        chromosome(std::size_t n):super_type(n)
         {
         }
         chromosome():chromosome(N_gene_count)
         {
-        }
-        
-        std::size_t size()
-        {
-            return this->genes.size();
-        }
-        std::size_t size() const
-        {
-            return this->genes.size();
-        }
-        void resize(std::size_t n)
-        {
-            this->genes.resize(n);
         }
         
         ////////////////////////////////////////////////////////////////////////////////
@@ -389,13 +375,13 @@ namespace model {
         random_initialize(Random&&random)
         {
             this->resize(N_gene_count);
-            Solution::random_initialize(std::begin(genes), std::end(genes), random);
+            Solution::random_initialize(std::begin(*this), std::end(*this), random);
         }
         template<typename Solution, typename Random>
         typename std::enable_if<basic_gene_concept::random_initialize::single<Solution>::enabled>::type
         random_initialize(Random&&random)
         {
-            for (auto it=std::begin(genes); it!=std::end(genes); it++)
+            for (auto it=std::begin(*this); it!=std::end(*this); it++)
                 Solution::random_initialize(it, std::forward<Random>(random));
         }
         
@@ -408,7 +394,7 @@ namespace model {
         typename std::enable_if<basic_gene_concept::compute_fitness::range<Solution>::enabled, Real>::type
         compute_fitness(typename Solution::random_engine&random)
         {
-            return Solution::compute_fitness(std::begin(genes), std::end(genes), random);
+            return Solution::compute_fitness(std::begin(*this), std::end(*this), random);
         }
         
         template<typename Solution, typename Real>
@@ -422,9 +408,7 @@ namespace model {
         typename std::enable_if<basic_gene_concept::crossover::two_ranges<Solution>::enabled>::type
         crossover(this_type&o, typename Solution::random_engine&random)
         {
-            Solution::crossover(std::begin(genes), std::end(genes),
-                                std::begin(o.genes), std::end(o.genes),
-                                random);
+            Solution::crossover(std::begin(*this), std::end(*this), std::begin(o), std::end(o), random);
         }
         
         template<typename Solution>
@@ -437,14 +421,14 @@ namespace model {
         typename std::enable_if<basic_gene_concept::mutate::range<Solution>::enabled>::type
         mutate(Random&&random)
         {
-            Solution::mutate(std::begin(genes), std::end(genes), random);
+            Solution::mutate(std::begin(*this), std::end(*this), random);
         }
         
         template<typename Solution, typename Random>
         typename std::enable_if<basic_gene_concept::mutate::single<Solution>::enabled>::type
         mutate(Random&&random)
         {
-            for (auto it=std::begin(genes); it!=std::end(genes); it++)
+            for (auto it=std::begin(*this); it!=std::end(*this); it++)
                 Solution::mutate(it, std::forward<Random>(random));
         }
         

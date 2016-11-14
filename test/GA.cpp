@@ -342,12 +342,12 @@ SCENARIO("c++11", "[GA]")
 
 struct FindMaxValue
 {
-    typedef std::default_random_engine random_engine;
-    typedef double value_type;
-    typedef double real_type;
+    typedef std::default_random_engine              random_engine;
+    typedef double                                  value_type;
+    typedef double                                  real_type;
     typedef gacpp::model::simple_gene<FindMaxValue> gene_type;
-    typedef gacpp::model::chromosome<gene_type, 1> chromosome_type;
-    typedef chromosome_type::gene_iterator gene_iterator;
+    typedef gacpp::model::chromosome<gene_type, 1>  chromosome_type;
+    typedef chromosome_type::iterator               gene_iterator;
     typedef gacpp::algorithm::team<chromosome_type, FindMaxValue> team_t;
     
     //static real_type rate_for_crossover_with_single_point() { return 0.4; }
