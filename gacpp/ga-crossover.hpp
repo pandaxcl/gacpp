@@ -34,9 +34,10 @@ namespace crossover {
     }
     
     template<typename Value, typename Real>
-    Value&& for_chromosome_with_only_one_gene(const Value&A, const Value&B, Real ratio_0_1)
+    void for_chromosome_with_only_one_gene(Value&A, Value&B, Real ratio_0_1)
     {
-        return util::value_in_range_with_ratio(A, B, ratio_0_1);
+        A = util::value_in_range_with_ratio(A, B, ratio_0_1);
+        B = util::value_in_range_with_ratio(B, A, ratio_0_1);
     }
     
 } //namespace crossover {

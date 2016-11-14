@@ -355,8 +355,12 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
             typedef gacpp::algorithm::team<chromosome_type, FindMaxValue> team_t;
             
             //static real_type rate_for_crossover_with_single_point() { return 0.4; }
-            static real_type rate_for_crossover_chromosome_with_only_one_gene() { return 0.4; }
-            static real_type rate_for_mutate() { return 0.044; }
+            static real_type rate_for_crossover_chromosome_with_only_one_gene() {
+                return 0.4;
+            }
+            static real_type rate_for_mutate() {
+                return 0.044;
+            }
             
             static void random_initialize(gene_iterator it, random_engine&random)
             {
@@ -380,6 +384,7 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
             }
         };
         
+        static_assert(gacpp::model::basic_gene_concept::crossover::two_ranges<FindMaxValue::gene_type>::enabled, "");
         static_assert(gacpp::model::simple_gene_concept::random_initialize<FindMaxValue>::enabled, "");
         static_assert(gacpp::model::simple_gene_concept::mutate<FindMaxValue>::enabled, "");
         static_assert(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<FindMaxValue>::enabled, "");
