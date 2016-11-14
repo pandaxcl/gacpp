@@ -12,7 +12,7 @@ namespace model {
                 typedef typename Solution::gene_type     Gene;
                 template<typename X> static typename std::enable_if<
                 /**/std::is_void<decltype(X::random_initialize(std::declval<ForwardIterator>(),
-                                                               std::declval<Random>()))>::value
+                                                               *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
                 enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
@@ -25,7 +25,7 @@ namespace model {
                 template<typename X> static typename std::enable_if<
                 /**/std::is_void<decltype(X::random_initialize(std::declval<ForwardIterator>(),
                                                                std::declval<ForwardIterator>(),
-                                                               std::declval<Random>()))>::value
+                                                               *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
                 enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
@@ -42,7 +42,7 @@ namespace model {
                 template<typename X> static typename std::enable_if<
                 /**/std::is_floating_point<decltype(X::compute_fitness(std::declval<ForwardIterator>(),
                                                                        std::declval<ForwardIterator>(),
-                                                                       std::declval<Random>()))>::value
+                                                                       *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
                 enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
@@ -61,7 +61,7 @@ namespace model {
                                                        std::declval<ForwardIterator>(),
                                                        std::declval<ForwardIterator>(),
                                                        std::declval<ForwardIterator>(),
-                                                       std::declval<Random>()))>::value
+                                                       *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
                 enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
@@ -76,7 +76,8 @@ namespace model {
                 typedef typename Solution::random_engine Random;
                 typedef typename Solution::gene_iterator ForwardIterator;
                 template<typename X> static typename std::enable_if<
-                /**/std::is_void<decltype(X::mutate(std::declval<ForwardIterator>(), std::declval<Random>()))>::value
+                /**/std::is_void<decltype(X::mutate(std::declval<ForwardIterator>(),
+                                                    *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
                 enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
@@ -89,7 +90,7 @@ namespace model {
                 template<typename X> static typename std::enable_if<
                 /**/std::is_void<decltype(X::mutate(std::declval<ForwardIterator>(),
                                                     std::declval<ForwardIterator>(),
-                                                    std::declval<Random>()))>::value
+                                                    *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
                 enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
@@ -161,7 +162,7 @@ namespace model {
         //            typedef typename F::random_engine Random;
         //            template<typename X> static typename std::enable_if<
         //            /**/!std::is_void<decltype(std::declval<X>().random_initialize(0,
-        //                                                                           std::declval<Random>()))>::value
+        //                                                                           *static_cast<Random*>(nullptr)))>::value
         //            >::type check(int);
         //            template<typename X> static std::false_type check(...);
         //            enum { enabled = std::is_void<decltype(check<F>(0))>::value };
@@ -200,7 +201,7 @@ namespace model {
             typedef typename F::gene_iterator ForwardIterator;
             template<typename X, typename Iterator> static typename std::enable_if<
             /**/std::is_void<decltype(X::mutate(std::declval<Iterator>(),
-                                                std::declval<Random>()))>::value
+                                                *static_cast<Random*>(nullptr)))>::value
             /**/&&
             /**/std::is_floating_point<decltype(std::declval<X>().rate_for_mutate())>::value
             >::type check(int);
@@ -217,7 +218,7 @@ namespace model {
 //            template<typename X, typename Iterator> static typename std::enable_if<
 //            /**/std::is_floating_point<decltype(X::fitness(std::declval<Iterator>(),
 //                                                           std::declval<Iterator>(),
-//                                                           std::declval<Random>()))>::value
+//                                                           *static_cast<Random*>(nullptr)))>::value
 //            >::type check(int);
 //            template<typename X, typename Iterator> static std::false_type check(...);
 //            enum { enabled = std::is_void<decltype(check<F, ForwardIterator>(0))>::value };
@@ -273,7 +274,7 @@ namespace model {
             static typename std::enable_if<simple_gene_concept::template random_initialize<F>::enabled>::type
             random_initialize(ForwardIterator begin, ForwardIterator end, Random&&random)
             {
-                static_assert(!std::is_void<decltype(std::declval<Solution>().random_initialize(0,std::declval<Random>()))>::value,
+                static_assert(!std::is_void<decltype(std::declval<Solution>().random_initialize(0,*static_cast<Random*>(nullptr)))>::value,
                               "Function must have random_initialize(int,random)->Unit function");
                 for (auto it=begin; it!=end; it++)
                 {
@@ -335,7 +336,7 @@ namespace model {
             static typename std::enable_if<simple_gene_concept::template mutate<F>::enabled>::type
             mutate(ForwardIterator begin, ForwardIterator end, Random&&random)
             {
-                static_assert(!std::is_void<decltype(std::declval<Solution>().mutate(std::declval<ForwardIterator>(),std::declval<Random>()))>::value,
+                static_assert(!std::is_void<decltype(std::declval<Solution>().mutate(std::declval<ForwardIterator>(),*static_cast<Random*>(nullptr)))>::value,
                               "Function must have mutate(int,random)->Unit function");
                 static_assert(std::is_floating_point<decltype(std::declval<Solution>().rate_for_mutate())>::value,
                               "Function must have mutate_rate()->Real function");
