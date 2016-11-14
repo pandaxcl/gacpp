@@ -53,7 +53,7 @@ namespace algorithm {
             Real fTotalFitness = Real(0);
             for (size_t i=0; i<members.size(); i++)
             {
-                this->fitnesses[i] = members[i].template compute_fitness<solution_type,Real>(random);
+                this->fitnesses[i] = members[i].template compute_fitness<solution_type>(random);
                 fTotalFitness += this->fitnesses[i];
             }
             return fTotalFitness;
