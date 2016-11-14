@@ -1,11 +1,13 @@
 
 namespace algorithm {
 
-    template<typename Member, typename Solution, typename Real=double, typename Random = typename Solution::random_engine>
-    struct team {
-        typedef std::vector<Member>   members_type;
-        typedef Random                random_engine;
-        typedef Solution              solution_type;
+    template<typename Member, typename Solution>
+    struct team
+    {
+        typedef std::vector<Member>                     members_type;
+        typedef Solution                                solution_type;
+        typedef typename solution_type::real_type       real_type;
+        typedef typename solution_type::random_engine   random_engine;
         
         members_type      *members_ptr = nullptr;
         members_type      *members_next_ptr = nullptr;
@@ -14,8 +16,8 @@ namespace algorithm {
             members_type  members_back;
         }buffer;
         
-        std::vector<Real>   fitnesses;
-        random_engine       random;
+        std::vector<real_type>  fitnesses;
+        random_engine           random;
         
         team()
         {
@@ -47,10 +49,10 @@ namespace algorithm {
                 member.template random_initialize<solution_type>(random);
             
         }
-        Real compute_fitnesses()
+        real_type compute_fitnesses()
         {
             auto&&members = *this->members_ptr;
-            Real fTotalFitness = Real(0);
+            real_type fTotalFitness = real_type(0);
             for (size_t i=0; i<members.size(); i++)
             {
                 this->fitnesses[i] = members[i].template compute_fitness<solution_type>(random);
@@ -65,14 +67,14 @@ namespace algorithm {
             auto&&members_next = *this->members_next_ptr;
             
             // 1. compute fitness
-            Real fTotalFitness = this->compute_fitnesses();
+            real_type fTotalFitness = this->compute_fitnesses();
             
             // 2. select to crossover
             {
                 auto select_one = [this, fTotalFitness, &members]
                 {
                     typedef typename members_type::iterator member_iterator;
-                    Real fSlice = static_cast<Real>(random())/random.max()*fTotalFitness;
+                    real_type fSlice = static_cast<real_type>(random())/random.max()*fTotalFitness;
                     return selection::roulette_one(std::begin(members), std::end(members), fSlice,
                                                    [this,&members](member_iterator it)
                     {
