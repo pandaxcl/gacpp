@@ -313,10 +313,9 @@ namespace model {
                 {
                     if (rate(random) < F::rate_for_crossover_chromosome_with_only_one_gene())
                     {
-                        auto&&ratio_0_1 = static_cast<real_type>(random())/random.max();
                         auto&&A = begin1->value();
                         auto&&B = begin2->value();
-                        crossover::for_chromosome_with_only_one_gene(A, B, ratio_0_1);
+                        crossover::for_chromosome_with_only_one_gene<real_type>(A, B, random);
                     }
                 }
             }
