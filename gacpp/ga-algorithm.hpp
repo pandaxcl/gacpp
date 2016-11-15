@@ -63,28 +63,30 @@ namespace algorithm {
         
         void epoch()
         {
-            auto&&members = *this->members_ptr;
-            auto&&members_next = *this->members_next_ptr;
-            
             // 1. compute fitness
             real_type fTotalFitness = this->compute_fitnesses();
             
             // 2. select to crossover
             {
-                auto select_one = [this, fTotalFitness, &members]
+                auto select_one = [this, fTotalFitness]
                 {
+                    auto&&members = *this->members_ptr;
                     typedef typename members_type::iterator member_iterator;
                     real_type fSlice = static_cast<real_type>(random())/random.max()*fTotalFitness;
                     return selection::roulette_one(std::begin(members), std::end(members), fSlice,
-                                                   [this,&members](member_iterator it)
+                                                   [this](member_iterator it)
                     {
+                        auto&&members = *this->members_ptr;
                         auto i = std::distance(std::begin(members), it);
                         return this->fitnesses.at(i);
                     });
                 };
+                auto&&members = *this->members_ptr;
                 assert(0 == members.size()%2);// must be even number
                 for (size_t i=0; i<members.size()/2; )
                 {
+                    auto&&members_next = *this->members_next_ptr;
+                    
                     auto it_1 = select_one();
                     auto it_2 = select_one();
                     
@@ -106,7 +108,8 @@ namespace algorithm {
             
             // 4. mutate
             {
-                for (auto&&member:members_next)
+                auto&&members = *this->members_ptr;
+                for (auto&&member:members)
                 {
                     member.template mutate<solution_type>(random);
                 }
