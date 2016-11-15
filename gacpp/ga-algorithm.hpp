@@ -19,6 +19,20 @@ namespace algorithm {
         std::vector<real_type>  fitnesses;
         random_engine           random;
         
+        members_type&members() {
+            assert(nullptr != this->members_ptr);
+            return *this->members_ptr;
+        }
+        members_type&members_next() {
+            assert(nullptr != this->members_next_ptr);
+            return *this->members_next_ptr;
+        }
+        
+        typename members_type::value_type& member_at_index(typename members_type::difference_type i) {
+            assert(nullptr != this->members_ptr);
+            return members().at(i);;
+        }
+        
         team()
         {
             members_ptr = &buffer.members_front;
@@ -103,13 +117,11 @@ namespace algorithm {
                     i++;
                 }
             }
-            // 3. swap buffers
-            this->swap_buffers();
             
-            // 4. mutate
+            // 3. mutate
             {
-                auto&&members = *this->members_ptr;
-                for (auto&&member:members)
+                auto&&members_next = *this->members_next_ptr;
+                for (auto&&member:members_next)
                 {
                     member.template mutate<solution_type>(random);
                 }

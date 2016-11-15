@@ -391,6 +391,7 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
         static_assert(gacpp::model::simple_gene_concept::compute_fitness<FindMaxValue>::enabled, "");
         static_assert(!gacpp::model::simple_gene_concept::crossover_with_single_point<FindMaxValue>::enabled, "");
         
+        REQUIRE(gacpp::model::basic_gene_concept::crossover::two_ranges<FindMaxValue::gene_type>::enabled);
         REQUIRE(gacpp::model::simple_gene_concept::random_initialize<FindMaxValue>::enabled);
         REQUIRE(gacpp::model::simple_gene_concept::mutate<FindMaxValue>::enabled);
         REQUIRE(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<FindMaxValue>::enabled);
@@ -403,7 +404,12 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
         {
             GA.epoch();
             auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
-            std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second <<")"<< std::endl;
+            auto index = std::distance(std::begin(GA.fitnesses), minmax_fitness.second);
+            auto x_of_member = GA.member_at_index(index);
+            auto x_of_value = x_of_member.front().value();
+            std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), x = " << x_of_value << std::endl;
+            
+            GA.swap_buffers();
         }
     }
 }
