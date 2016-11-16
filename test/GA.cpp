@@ -340,20 +340,26 @@ SCENARIO("c++11", "[GA]")
     }
 }
 
-SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
+template<typename Solution, int _N_variables>
+struct find_extremum
 {
-    GIVEN("simple_gene")
+    typedef Solution                                                solution_type;
+    enum { N_variables = _N_variables };
+    typedef std::default_random_engine                              random_engine;
+    typedef double                                                  value_type;
+    typedef double                                                  real_type;
+    typedef gacpp::model::simple_gene<solution_type>                gene_type;
+    typedef gacpp::model::chromosome<gene_type, N_variables>        chromosome_type;
+    typedef typename chromosome_type::iterator                      gene_iterator;
+    typedef gacpp::algorithm::team<chromosome_type, solution_type>  team_t;
+};
+
+SCENARIO("simple_gene", "[GA][minimum][maximum]")
+{
+    GIVEN("f(x) = x*sin(10*pi*x)+2.0")
     {
-        struct FindMaxValue
+        struct FindMaxValue: public find_extremum<FindMaxValue, 1>
         {
-            typedef std::default_random_engine              random_engine;
-            typedef double                                  value_type;
-            typedef double                                  real_type;
-            typedef gacpp::model::simple_gene<FindMaxValue> gene_type;
-            typedef gacpp::model::chromosome<gene_type, 1>  chromosome_type;
-            typedef chromosome_type::iterator               gene_iterator;
-            typedef gacpp::algorithm::team<chromosome_type, FindMaxValue> team_t;
-            
             //static real_type rate_for_crossover_with_single_point() { return 0.4; }
             static real_type rate_for_crossover_chromosome_with_only_one_gene() {
                 return 0.4;
@@ -367,15 +373,12 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
                 auto t = gacpp::util::random_0_1<real_type>(random);
                 it->_value = gacpp::util::value_in_range_with_ratio(-1.0, 2.0, t);
             }
-
+            
             static void mutate(gene_iterator it, random_engine&random)
             {
-                auto t = gacpp::util::random_0_1<real_type>(random);
-                auto&&sign = gacpp::util::random_sign<real_type>(random);
-                auto&&step = 0.1;
-                it->_value = gacpp::util::value_clamped_in_range(-1.0, 2.0, it->value()+sign*t*step);
+                gacpp::mutate::for_real_value_clamped_in_range(it->_value, random, 0.1, -1.0, 2.0);
             }
-
+            
             static real_type compute_fitness(gene_iterator begin, gene_iterator end, random_engine&random)
             {
                 assert(std::distance(begin, end) == 1);
@@ -398,18 +401,20 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
         REQUIRE(gacpp::model::simple_gene_concept::compute_fitness<FindMaxValue>::enabled);
         REQUIRE_FALSE(gacpp::model::simple_gene_concept::crossover_with_single_point<FindMaxValue>::enabled);
         
-        FindMaxValue::team_t GA(100);
-        GA.random_initialize();
-        for (auto i=0; i<1000; i++)
+        THEN("to find its extremum")
         {
-            GA.epoch();
-            auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
-            auto index = std::distance(std::begin(GA.fitnesses), minmax_fitness.second);
-            auto x_of_member = GA.member_at_index(index);
-            auto x_of_value = x_of_member.front().value();
-            std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), x = " << x_of_value << std::endl;
-            
-            GA.swap_buffers();
+            FindMaxValue::team_t GA(100);
+            GA.random_initialize();
+            for (auto i=0; i<1000; i++)
+            {
+                GA.epoch();
+                auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
+                auto index = std::distance(std::begin(GA.fitnesses), minmax_fitness.second);
+                auto x_of_member = GA.member_at_index(index);
+                auto x_of_value = x_of_member.front().value();
+                std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), x = " << x_of_value << std::endl;
+                GA.swap_buffers();
+            }
         }
     }
 }
