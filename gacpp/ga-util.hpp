@@ -25,4 +25,11 @@ namespace util {
         return std::move(x);
     }
     
+    template<typename Real, typename Random>
+    typename std::enable_if<std::is_floating_point<Real>::value, Real>::type
+    random_0_1(Random&&random)
+    {
+        return static_cast<Real>(random())/random.max();
+    }
+    
 }// namespace util {

@@ -364,13 +364,13 @@ SCENARIO("f(x) = x*sin(10*pi*x)+2.0", "[GA][minimum][maximum]")
             
             static void random_initialize(gene_iterator it, random_engine&random)
             {
-                auto t = static_cast<real_type>(random())/random.max();
+                auto t = gacpp::util::random_0_1<real_type>(random);
                 it->_value = gacpp::util::value_in_range_with_ratio(-1.0, 2.0, t);
             }
 
             static void mutate(gene_iterator it, random_engine&random)
             {
-                auto t = static_cast<real_type>(random())/random.max();
+                auto t = gacpp::util::random_0_1<real_type>(random);
                 auto&&sign = gacpp::util::random_sign<real_type>(random);
                 auto&&step = 0.1;
                 it->_value = gacpp::util::value_clamped_in_range(-1.0, 2.0, it->value()+sign*t*step);
