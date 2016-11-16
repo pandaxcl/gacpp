@@ -91,6 +91,7 @@ namespace algorithm {
                                                    [this](member_iterator it)
                     {
                         auto&&members = *this->members_ptr;
+                        assert(it != std::end(members));
                         auto i = std::distance(std::begin(members), it);
                         return this->fitnesses.at(i);
                     });

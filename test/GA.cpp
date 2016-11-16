@@ -217,6 +217,7 @@ SCENARIO("mutate", "[GA]")
     {
         int A[5] = {0, 1, 2, 3, 4, };
         REQUIRE(std::distance(std::begin(A), std::end(A)) == 5);
+        REQUIRE(std::distance(std::begin(A), std::begin(A)) == 0);
         GIVEN("mutate function [](int&m){ m=9; }")
         {
             auto mutate_function = [](int&m){ m=9; };
@@ -388,15 +389,15 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
         };
         
         static_assert(gacpp::model::basic_gene_concept::crossover::two_ranges<FindMaxValue::gene_type>::enabled, "");
-        static_assert(gacpp::model::simple_gene_concept::random_initialize<FindMaxValue>::enabled, "");
-        static_assert(gacpp::model::simple_gene_concept::mutate<FindMaxValue>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::random_initialize::single<FindMaxValue>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::mutate::single<FindMaxValue>::enabled, "");
         static_assert(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<FindMaxValue>::enabled, "");
         static_assert(gacpp::model::simple_gene_concept::compute_fitness<FindMaxValue>::enabled, "");
         static_assert(!gacpp::model::simple_gene_concept::crossover_with_single_point<FindMaxValue>::enabled, "");
         
         REQUIRE(gacpp::model::basic_gene_concept::crossover::two_ranges<FindMaxValue::gene_type>::enabled);
-        REQUIRE(gacpp::model::simple_gene_concept::random_initialize<FindMaxValue>::enabled);
-        REQUIRE(gacpp::model::simple_gene_concept::mutate<FindMaxValue>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::random_initialize::single<FindMaxValue>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::mutate::single<FindMaxValue>::enabled);
         REQUIRE(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<FindMaxValue>::enabled);
         REQUIRE(gacpp::model::simple_gene_concept::compute_fitness<FindMaxValue>::enabled);
         REQUIRE_FALSE(gacpp::model::simple_gene_concept::crossover_with_single_point<FindMaxValue>::enabled);
@@ -405,14 +406,96 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
         {
             FindMaxValue::team_t GA(100);
             GA.random_initialize();
-            for (auto i=0; i<1000; i++)
+            for (auto i=0; i<100; i++)
             {
                 GA.epoch();
                 auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
                 auto index = std::distance(std::begin(GA.fitnesses), minmax_fitness.second);
-                auto x_of_member = GA.member_at_index(index);
-                auto x_of_value = x_of_member.front().value();
-                std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), x = " << x_of_value << std::endl;
+                auto m = GA.member_at_index(index);
+                auto x = m.at(0).value();
+                std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), x = " << x << std::endl;
+                GA.swap_buffers();
+            }
+        }
+    }
+    GIVEN("f(x,y) = (4-2.1*x^2+x^4/3)*x^2+x*y+(-4+4*y^2)*y^2")
+    {
+        struct FindMaxValue2: public find_extremum<FindMaxValue2, 2>
+        {
+            static real_type rate_for_crossover_with_single_point() { return 0.4; }
+//            static real_type rate_for_crossover_chromosome_with_only_one_gene() {
+//                return 0.4;
+//            }
+            static real_type rate_for_mutate() {
+                return 0.044;
+            }
+            
+            static void random_initialize(gene_iterator begin, gene_iterator end, random_engine&random)
+            {
+                assert(std::distance(begin, end) == 2);
+                auto x_it = begin; std::advance(x_it, 0);
+                auto y_it = begin; std::advance(y_it, 1);
+                auto&&x = static_cast<real_type&>(*x_it);
+                auto&&y = static_cast<real_type&>(*y_it);
+                
+                x = gacpp::util::value_in_range_with_ratio(-3.0, +3.0, gacpp::util::random_0_1<real_type>(random));
+                y = gacpp::util::value_in_range_with_ratio(-2.0, +2.0, gacpp::util::random_0_1<real_type>(random));
+            }
+
+            static void mutate(gene_iterator begin, gene_iterator end, random_engine&random)
+            {
+                auto n = std::distance(begin, end);
+                assert(std::distance(begin, end) == 2);
+                auto x_it = begin; std::advance(x_it, 0);
+                auto y_it = begin; std::advance(y_it, 1);
+                auto&&x = static_cast<real_type&>(*x_it);
+                auto&&y = static_cast<real_type&>(*y_it);
+                
+                gacpp::mutate::for_real_value_clamped_in_range(x, random, 0.1, -3.0, +3.0);
+                gacpp::mutate::for_real_value_clamped_in_range(y, random, 0.1, -2.0, +2.0);
+            }
+            
+            static real_type compute_fitness(gene_iterator begin, gene_iterator end, random_engine&random)
+            {
+                auto n = std::distance(begin, end);
+                assert(std::distance(begin, end) == 2);
+                auto x_it = begin; std::advance(x_it, 0);
+                auto y_it = begin; std::advance(y_it, 1);
+                auto&&x = static_cast<real_type&>(*x_it);
+                auto&&y = static_cast<real_type&>(*y_it);
+                auto f = (4-2.1*std::pow(x,2)+std::pow(x,4)/3)*std::pow(x,2)+x*y+(-4+4*std::pow(y,2))*std::pow(y,2);
+                return -f;
+            }
+        };
+        
+        static_assert(gacpp::model::basic_gene_concept::crossover::two_ranges<FindMaxValue2::gene_type>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::random_initialize::range<FindMaxValue2>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::mutate::range<FindMaxValue2>::enabled, "");
+        static_assert(!gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<FindMaxValue2>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::compute_fitness<FindMaxValue2>::enabled, "");
+        static_assert(gacpp::model::simple_gene_concept::crossover_with_single_point<FindMaxValue2>::enabled, "");
+        
+        REQUIRE(gacpp::model::basic_gene_concept::crossover::two_ranges<FindMaxValue2::gene_type>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::random_initialize::range<FindMaxValue2>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::mutate::range<FindMaxValue2>::enabled);
+        REQUIRE_FALSE(gacpp::model::simple_gene_concept::crossover_for_chromosome_with_only_one_gene<FindMaxValue2>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::compute_fitness<FindMaxValue2>::enabled);
+        REQUIRE(gacpp::model::simple_gene_concept::crossover_with_single_point<FindMaxValue2>::enabled);
+        
+        THEN("to find its extremum")
+        {
+            FindMaxValue2::team_t GA(100);
+            GA.random_initialize();
+            for (auto i=0; i<100; i++)
+            {
+                GA.epoch();
+                auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
+                auto index = std::distance(std::begin(GA.fitnesses), minmax_fitness.second);
+                auto m = GA.member_at_index(index);
+                auto x = m.at(0).value();
+                auto y = m.at(1).value();
+                std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), ";
+                std::cout << "(x, y) = (" << x << ", " << y <<")" << std::endl;
                 GA.swap_buffers();
             }
         }

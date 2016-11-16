@@ -13,8 +13,8 @@ namespace selection {
                 return it;
             }
         }
-        
-        return end;
+
+        return begin;
     }
 
 }// namespace selection

@@ -156,7 +156,8 @@ namespace model {
     
     struct simple_gene_concept
     {
-        template<typename Solution> using random_initialize = basic_gene_concept::random_initialize::single<Solution>;
+        //template<typename Solution> using random_initialize = basic_gene_concept::random_initialize::single<Solution>;
+        using random_initialize = basic_gene_concept::random_initialize;
 //        template<typename Solution>
 //        struct random_initialize
 //        {
@@ -195,17 +196,32 @@ namespace model {
             enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
         };
         
-        template<typename Solution>
         struct mutate
         {
-            typedef typename Solution::random_engine Random;
-            typedef typename Solution::gene_iterator ForwardIterator;
-            template<typename X, typename Iterator> static typename std::enable_if<
-            /**/basic_gene_concept::mutate::single<X>::enabled &&
-            /**/std::is_floating_point<decltype(std::declval<X>().rate_for_mutate())>::value
-            >::type check(int);
-            template<typename X,typename Iterator> static std::false_type check(...);
-            enum { enabled = std::is_void<decltype(check<Solution,ForwardIterator>(0))>::value };
+            template<typename Solution>
+            struct single
+            {
+                typedef typename Solution::random_engine Random;
+                typedef typename Solution::gene_iterator ForwardIterator;
+                template<typename X, typename Iterator> static typename std::enable_if<
+                /**/basic_gene_concept::mutate::single<X>::enabled&&
+                /**/std::is_floating_point<decltype(std::declval<X>().rate_for_mutate())>::value
+                >::type check(int);
+                template<typename X,typename Iterator> static std::false_type check(...);
+                enum { enabled = std::is_void<decltype(check<Solution,ForwardIterator>(0))>::value };
+            };
+            template<typename Solution>
+            struct range
+            {
+                typedef typename Solution::random_engine Random;
+                typedef typename Solution::gene_iterator ForwardIterator;
+                template<typename X, typename Iterator> static typename std::enable_if<
+                /**/basic_gene_concept::mutate::range<X>::enabled&&
+                /**/std::is_floating_point<decltype(std::declval<X>().rate_for_mutate())>::value
+                >::type check(int);
+                template<typename X,typename Iterator> static std::false_type check(...);
+                enum { enabled = std::is_void<decltype(check<Solution,ForwardIterator>(0))>::value };
+            };
         };
         
         template<typename Solution> using compute_fitness = basic_gene_concept::compute_fitness::range<Solution>;
@@ -269,7 +285,13 @@ namespace model {
         struct detail {
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             template<typename F, typename ForwardIterator>
-            static typename std::enable_if<simple_gene_concept::template random_initialize<F>::enabled>::type
+            static typename std::enable_if<simple_gene_concept::random_initialize::template range<F>::enabled>::type
+            random_initialize(ForwardIterator begin, ForwardIterator end, typename F::random_engine&random)
+            {
+                F::random_initialize(begin, end, random);
+            }
+            template<typename F, typename ForwardIterator>
+            static typename std::enable_if<simple_gene_concept::random_initialize::template single<F>::enabled>::type
             random_initialize(ForwardIterator begin, ForwardIterator end, typename F::random_engine&random)
             {
                 for (auto it=begin; it!=end; it++)
@@ -324,7 +346,7 @@ namespace model {
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             
             template<typename F, typename ForwardIterator>
-            static typename std::enable_if<simple_gene_concept::template mutate<F>::enabled>::type
+            static typename std::enable_if<simple_gene_concept::mutate::template single<F>::enabled>::type
             mutate(ForwardIterator begin, ForwardIterator end, typename F::random_engine&random)
             {
                 for (auto it=begin; it!=end; it++)
@@ -332,6 +354,12 @@ namespace model {
                     if (rate(random) < F::rate_for_mutate())
                         F::mutate(it, random);
                 }
+            }
+            template<typename F, typename ForwardIterator>
+            static typename std::enable_if<simple_gene_concept::mutate::template range<F>::enabled>::type
+            mutate(ForwardIterator begin, ForwardIterator end, typename F::random_engine&random)
+            {
+                F::mutate(begin, end, random);
             }
             template<typename F>
             static void mutate(...){}
@@ -391,14 +419,12 @@ namespace model {
         typename std::enable_if<basic_gene_concept::random_initialize::range<typename gene_of<Solution>::has_random_initialize::type>::enabled>::type
         random_initialize(typename Solution::random_engine&random)
         {
-            this->resize(N_gene_count);
             gene_of<Solution>::has_random_initialize::type::random_initialize(std::begin(*this), std::end(*this), random);
         }
         template<typename Solution>
         typename std::enable_if<basic_gene_concept::random_initialize::single<typename gene_of<Solution>::has_random_initialize::type>::enabled>::type
         random_initialize(typename Solution::random_engine&random)
         {
-            this->resize(N_gene_count);
             for (auto it=std::begin(*this); it!=std::end(*this); it++)
             {
                 gene_of<Solution>::has_random_initialize::type::random_initialize(it, random);
