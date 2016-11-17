@@ -177,7 +177,7 @@ namespace model {
         {
             typedef typename Solution::random_engine Random;
             template<typename X> static typename std::enable_if<
-            /**/std::is_floating_point<decltype(std::declval<X>().rate_for_crossover_with_single_point())>::value
+            /**/std::is_floating_point<decltype(X::rate_for_crossover_with_single_point())>::value
             >::type check(int);
             template<typename X> static std::false_type check(...);
             enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
@@ -186,11 +186,11 @@ namespace model {
         };
         
         template<typename Solution>
-        struct crossover_for_chromosome_with_only_one_gene
+        struct crossover_with_linear_interpolation
         {
             typedef typename Solution::random_engine Random;
             template<typename X> static typename std::enable_if<
-            /**/std::is_floating_point<decltype(std::declval<X>().rate_for_crossover_chromosome_with_only_one_gene())>::value
+            /**/std::is_floating_point<decltype(X::rate_for_crossover_with_linear_interpolation())>::value
             >::type check(int);
             template<typename X> static std::false_type check(...);
             enum { enabled = std::is_void<decltype(check<Solution>(0))>::value };
@@ -205,7 +205,7 @@ namespace model {
                 typedef typename Solution::gene_iterator ForwardIterator;
                 template<typename X, typename Iterator> static typename std::enable_if<
                 /**/basic_gene_concept::mutate::single<X>::enabled&&
-                /**/std::is_floating_point<decltype(std::declval<X>().rate_for_mutate())>::value
+                /**/std::is_floating_point<decltype(X::rate_for_mutate())>::value
                 >::type check(int);
                 template<typename X,typename Iterator> static std::false_type check(...);
                 enum { enabled = std::is_void<decltype(check<Solution,ForwardIterator>(0))>::value };
@@ -217,7 +217,7 @@ namespace model {
                 typedef typename Solution::gene_iterator ForwardIterator;
                 template<typename X, typename Iterator> static typename std::enable_if<
                 /**/basic_gene_concept::mutate::range<X>::enabled&&
-                /**/std::is_floating_point<decltype(std::declval<X>().rate_for_mutate())>::value
+                /**/std::is_floating_point<decltype(X::rate_for_mutate())>::value
                 >::type check(int);
                 template<typename X,typename Iterator> static std::false_type check(...);
                 enum { enabled = std::is_void<decltype(check<Solution,ForwardIterator>(0))>::value };
@@ -271,8 +271,8 @@ namespace model {
         static void crossover(ForwardIterator begin1, ForwardIterator end1,
                               ForwardIterator begin2, ForwardIterator end2, random_engine&random)
         {
-            detail::template crossover_for_chromosome_with_only_one_gene<Solution>(begin1, end1, begin2, end2, random);
-            detail::template crossover_with_single_point                <Solution>(begin1, end1, begin2, end2, random);
+            detail::template crossover_with_linear_interpolation<Solution>(begin1, end1, begin2, end2, random);
+            detail::template crossover_with_single_point        <Solution>(begin1, end1, begin2, end2, random);
         }
         //template<typename ForwardIterator> static void mutate(ForwardIterator it, random_engine&random) { }
         template<typename ForwardIterator>
@@ -307,42 +307,38 @@ namespace model {
             crossover_with_single_point(ForwardIterator begin1, ForwardIterator end1,
                                         ForwardIterator begin2, ForwardIterator end2, typename F::random_engine&random)
             {
-                auto n = std::distance(begin1, end1);
-                if (n > 1)
+                assert(std::distance(begin1, end1) > 1);
+                if (rate(random) < F::rate_for_crossover_with_single_point())
                 {
-                    if (rate(random) < F::rate_for_crossover_with_single_point())
+                    auto i = 1;
+                    auto n = std::distance(begin1, end1);
+                    if (n > 2)
                     {
-                        auto i = 1;
-                        if (n > 2)
-                        {
-                            i = random()%(std::distance(begin1, end1)-1)+1;
-                        }
-                        crossover::with_single_point(begin1, end1, begin2, end2, i);
+                        i = random()%(n-1)+1;
                     }
+                    crossover::with_single_point(begin1, end1, begin2, end2, i);
                 }
             }
             template<typename F>
             static void crossover_with_single_point(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             template<typename F, typename ForwardIterator>
-            static typename std::enable_if<simple_gene_concept::template crossover_for_chromosome_with_only_one_gene<F>::enabled>::type
-            crossover_for_chromosome_with_only_one_gene(ForwardIterator begin1, ForwardIterator end1,
-                                                        ForwardIterator begin2, ForwardIterator end2, typename F::random_engine&random)
+            static typename std::enable_if<simple_gene_concept::template crossover_with_linear_interpolation<F>::enabled>::type
+            crossover_with_linear_interpolation(ForwardIterator begin1, ForwardIterator end1,
+                                                ForwardIterator begin2, ForwardIterator end2, typename F::random_engine&random)
             {
-                auto n = std::distance(begin1, end1);
-                
-                if (1 == n)
+                for (auto it=begin1; it!=end1; it++)
                 {
-                    if (rate(random) < F::rate_for_crossover_chromosome_with_only_one_gene())
+                    if (rate(random) < F::rate_for_crossover_with_linear_interpolation())
                     {
                         auto&&A = begin1->value();
                         auto&&B = begin2->value();
-                        crossover::for_chromosome_with_only_one_gene<real_type>(A, B, random);
+                        crossover::with_linear_interpolation<real_type>(A, B, random);
                     }
                 }
             }
             template<typename F>
-            static void crossover_for_chromosome_with_only_one_gene(...){}
+            static void crossover_with_linear_interpolation(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             
             template<typename F, typename ForwardIterator>

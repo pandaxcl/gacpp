@@ -34,18 +34,18 @@ namespace crossover {
     }
     
     template<typename Value, typename Real>
-    void for_chromosome_with_only_one_gene(Value && A, Value && B, Real A_ratio_0_1, Real B_ratio_0_1)
+    void with_linear_interpolation(Value && A, Value && B, Real A_ratio_0_1, Real B_ratio_0_1)
     {
         A = util::value_in_range_with_ratio(A, B, A_ratio_0_1);
         B = util::value_in_range_with_ratio(A, B, B_ratio_0_1);
     }
     
     template<typename Real, typename Value, typename Random>
-    void for_chromosome_with_only_one_gene(Value && A, Value && B, Random&&random)
+    void with_linear_interpolation(Value && A, Value && B, Random&&random)
     {
         auto&&A_ratio_0_1 = static_cast<Real>(random())/random.max();
         auto&&B_ratio_0_1 = static_cast<Real>(random())/random.max();
-        for_chromosome_with_only_one_gene(A, B, A_ratio_0_1, B_ratio_0_1);
+        with_linear_interpolation(A, B, A_ratio_0_1, B_ratio_0_1);
     }
     
 } //namespace crossover {
