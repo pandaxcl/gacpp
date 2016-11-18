@@ -410,8 +410,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             {
                 GA.epoch();
                 auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
-                auto index = std::distance(std::begin(GA.fitnesses), minmax_fitness.second);
-                auto m = GA.member_at_index(index);
+                auto m = GA.member_for_fitness(minmax_fitness.second);
                 auto x = m.at(0).value();
                 std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), x = " << x << std::endl;
                 GA.swap_buffers();
@@ -486,8 +485,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             {
                 GA.epoch();
                 auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
-                auto index = std::distance(std::begin(GA.fitnesses), minmax_fitness.second);
-                auto m = GA.member_at_index(index);
+                auto m = GA.member_for_fitness(minmax_fitness.second);
                 auto x = m.at(0).value();
                 auto y = m.at(1).value();
                 std::cout << "fitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), ";

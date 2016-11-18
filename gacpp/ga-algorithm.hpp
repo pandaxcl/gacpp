@@ -28,9 +28,9 @@ namespace algorithm {
             return *this->members_next_ptr;
         }
         
-        typename members_type::value_type& member_at_index(typename members_type::difference_type i) {
-            assert(nullptr != this->members_ptr);
-            return members().at(i);;
+        typename members_type::value_type& member_for_fitness(typename decltype(fitnesses)::iterator it) {
+            auto index = std::distance(std::begin(fitnesses), it);
+            return members().at(index);
         }
         
         team()
