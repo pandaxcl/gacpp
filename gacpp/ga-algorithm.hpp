@@ -48,6 +48,7 @@ namespace algorithm {
         }buffer;
         
         std::vector<real_type>  fitnesses;
+        std::random_device      rd;
         random_engine           random;
         
         members_type&members() {
@@ -65,7 +66,7 @@ namespace algorithm {
             return it_member;
         }
         
-        team()
+        team():random(rd())
         {
             members_ptr = &buffer.members_front;
             members_next_ptr = &buffer.members_back;

@@ -453,8 +453,8 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 auto&&x = static_cast<real_type&>(*x_it);
                 auto&&y = static_cast<real_type&>(*y_it);
                 
-                gacpp::mutate::for_real_value_clamped_in_range(x, random, 0.1, -3.0, +3.0);
-                gacpp::mutate::for_real_value_clamped_in_range(y, random, 0.1, -2.0, +2.0);
+                gacpp::mutate::for_real_value_clamped_in_range(x, random, 6.0, -3.0, +3.0);
+                gacpp::mutate::for_real_value_clamped_in_range(y, random, 4.0, -2.0, +2.0);
             }
             
             static real_type compute_fitness(gene_iterator begin, gene_iterator end, random_engine&random)
