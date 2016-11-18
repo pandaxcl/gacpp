@@ -459,7 +459,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 auto&&x = static_cast<real_type&>(*x_it);
                 auto&&y = static_cast<real_type&>(*y_it);
                 auto f = (4-2.1*std::pow(x,2)+std::pow(x,4)/3)*std::pow(x,2)+x*y+(-4+4*std::pow(y,2))*std::pow(y,2);
-                return -f;
+                return std::exp(-f);
             }
         };
         
