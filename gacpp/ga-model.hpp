@@ -109,6 +109,7 @@ namespace model {
         
         value_type _value;
         value_type&value() { return _value; }
+        const value_type&value() const { return _value; }
         void set_value(value_type&&x) { _value = x; }
         void set_value(const value_type&x) { _value = x; }
         

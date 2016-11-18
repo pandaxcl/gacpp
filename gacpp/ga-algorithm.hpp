@@ -28,9 +28,10 @@ namespace algorithm {
             return *this->members_next_ptr;
         }
         
-        typename members_type::value_type& member_for_fitness(typename decltype(fitnesses)::iterator it) {
+        typename members_type::iterator member_for_fitness(typename decltype(fitnesses)::iterator it) {
             auto index = std::distance(std::begin(fitnesses), it);
-            return members().at(index);
+            auto it_member = std::begin(members()); std::advance(it_member, index);
+            return it_member;
         }
         
         team()
