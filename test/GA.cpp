@@ -355,36 +355,6 @@ struct find_extremum
     typedef gacpp::algorithm::team<chromosome_type, solution_type>  team_t;
 };
 
-template<typename Real>
-struct simple_report
-{
-    typedef Real real_type;
-    std::string message;
-    std::size_t n_epoch = 0;
-    real_type bestFitness = 0;
-    bool operator = (real_type newFitness)
-    {
-        bool needRecord = false;
-        if (newFitness > bestFitness)
-        {
-            real_type deltaFitness = newFitness - bestFitness;
-            bestFitness = newFitness;
-            message = "[" + std::to_string(n_epoch) +"]: "+ std::to_string(newFitness) + "(+" + std::to_string(deltaFitness) + ")";
-            needRecord = true;
-        }
-        n_epoch ++;
-        return needRecord;
-    }
-    operator std::string& () { return this->message; }
-    operator const std::string& () const { return this->message; }
-    
-    friend std::ostream&operator << (std::ostream&os, const simple_report&reporter)
-    {
-        os << static_cast<const std::string&>(reporter);
-        return os;
-    }
-};
-
 SCENARIO("simple_gene", "[GA][minimum][maximum]")
 {
     GIVEN("f(x) = x*sin(10*pi*x)+2.0")
@@ -434,7 +404,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
         
         THEN("to find its extremum")
         {
-            simple_report<FindMaxValue::real_type> report;
+            gacpp::algorithm::simple_report<FindMaxValue::real_type> report;
             FindMaxValue::team_t GA(100);
             GA.random_initialize();
             for (auto i=0; i<100; i++)
@@ -519,7 +489,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             FindMaxValue2::team_t GA(100);
             GA.random_initialize();
             
-            simple_report<FindMaxValue2::real_type> report;
+            gacpp::algorithm::simple_report<FindMaxValue2::real_type> report;
             for (auto i=0; i<10000; i++)
             {
                 GA.epoch();

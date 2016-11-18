@@ -1,5 +1,36 @@
 
 namespace algorithm {
+    
+    template<typename Real>
+    struct simple_report
+    {
+        typedef Real real_type;
+        std::string message;
+        std::size_t n_epoch = 0;
+        real_type bestFitness = 0;
+        bool operator = (real_type newFitness)
+        {
+            bool needRecord = false;
+            if (newFitness > bestFitness)
+            {
+                real_type deltaFitness = newFitness - bestFitness;
+                bestFitness = newFitness;
+                message = "[" + std::to_string(n_epoch) +"]: "+ std::to_string(newFitness) + "(+" + std::to_string(deltaFitness) + ")";
+                needRecord = true;
+            }
+            n_epoch ++;
+            return needRecord;
+        }
+        operator std::string& () { return this->message; }
+        operator const std::string& () const { return this->message; }
+        
+        template<typename Stream>
+        friend Stream&operator << (Stream&os, const simple_report&reporter)
+        {
+            os << static_cast<const std::string&>(reporter);
+            return os;
+        }
+    };
 
     template<typename Member, typename Solution>
     struct team
