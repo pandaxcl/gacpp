@@ -407,7 +407,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             gacpp::algorithm::simple_report<FindMaxValue::real_type> report;
             FindMaxValue::team_t GA(100);
             GA.random_initialize();
-            for (auto i=0; i<100; i++)
+            for (auto i=0; i<10000; i++)
             {
                 GA.epoch();
                 
@@ -503,6 +503,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     
                     std::cout << report << "\t(x, y) = (" << x << ", " << y <<")";
                     std::cout << "\tfitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), "<<std::endl;
+                    GA.keep_best_for_ratio(0.05);
                 }
                 
                 GA.swap_buffers();
