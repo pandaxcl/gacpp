@@ -419,6 +419,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     auto x = m.at(0).value();
                     std::cout << report << ", x = " << x ;
                     std::cout << "\tfitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << ")" << std::endl;
+                    GA.keep_best_for_ratio(0.05);
                 }
                 
                 GA.swap_buffers();

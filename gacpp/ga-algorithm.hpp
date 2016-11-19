@@ -173,9 +173,11 @@ namespace algorithm {
             };
             std::vector<Data> tmp;
             typename members_type::iterator it_member = std::begin(members());
-            for (auto it_fitness=std::begin(fitnesses); it_fitness!=std::end(fitnesses); it_fitness++)
+            for (auto it_fitness=std::begin(fitnesses); it_fitness!=std::end(fitnesses); )
             {
                 tmp.push_back(Data(*it_fitness, it_member));
+                it_fitness++;
+                it_member++;
             }
             std::sort(std::begin(tmp), std::end(tmp), [](typename decltype(tmp)::value_type&a,
                                                          typename decltype(tmp)::value_type&b){
