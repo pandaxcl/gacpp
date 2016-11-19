@@ -12,7 +12,7 @@ SCENARIO("roulette_one", "[GA]")
     {
         const size_t N = 6;
         const float V[N] = { 0.3, 0.9, 0.1, /* _ */ 0.7, 0.5, 0.87, };
-        auto random_0_1=[V]()->float{
+        auto random_0_1=[&V]()->float{
             static size_t i = 0;
             i++;
             return V[i-1];
@@ -384,7 +384,8 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             {
                 assert(std::distance(begin, end) == 1);
                 auto&&x = static_cast<real_type&>(*begin);
-                return x*std::sin(10*M_PI*x)+2.0;
+				const real_type pi = 3.14159265358979323846;
+                return x*std::sin(10*pi*x)+2.0;
             }
         };
         

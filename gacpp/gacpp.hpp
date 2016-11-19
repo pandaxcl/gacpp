@@ -2,6 +2,7 @@
 #include <list>
 #include <random>
 #include <cassert>
+#include <functional>
 
 namespace gacpp {
 

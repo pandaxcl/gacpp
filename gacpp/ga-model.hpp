@@ -115,7 +115,6 @@ namespace model {
         
         operator value_type() { return _value; }
         operator value_type&() { return _value; }
-        operator const value_type() { return _value; }
         operator const value_type&() { return _value; }
         
         gene_type&operator = (value_type&&x) { this->_value = x; return *this; }
