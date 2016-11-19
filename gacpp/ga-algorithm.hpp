@@ -164,15 +164,21 @@ namespace algorithm {
         
         void keep_best_for_ratio(real_type ratio)
         {
-            std::vector<std::pair<real_type,typename members_type::iterator>> tmp;
+            struct Data
+            {
+                real_type                       fitness;
+                typename members_type::iterator it_member;
+                Data(decltype(fitness)f, decltype(it_member)it):fitness(f),it_member(it){}
+            };
+            std::vector<Data> tmp;
             typename members_type::iterator it_member = std::begin(members());
             for (auto it_fitness=std::begin(fitnesses); it_fitness!=std::end(fitnesses); it_fitness++)
             {
-                tmp.push_back(std::make_pair(*it_fitness, it_member));
+                tmp.push_back(Data(*it_fitness, it_member));
             }
             std::sort(std::begin(tmp), std::end(tmp), [](typename decltype(tmp)::value_type&a,
                                                          typename decltype(tmp)::value_type&b){
-                return a.first > b.first;
+                return a.fitness > b.fitness;
             });
             
             auto n = static_cast<std::size_t>(members().size() * ratio);
@@ -180,7 +186,7 @@ namespace algorithm {
             auto&&members_next = *this->members_next_ptr;
             for (auto i=0; i<n; i++)
             {
-                auto it_member = tmp.at(i).second;
+                auto it_member = tmp.at(i).it_member;
                 auto index = std::distance(std::begin(members), it_member);
                 auto it = std::begin(members_next); std::advance(it, index);
                 members_next[index] = *it;
