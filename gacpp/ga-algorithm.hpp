@@ -7,20 +7,45 @@ namespace algorithm {
         typedef Real real_type;
         std::string message;
         std::size_t n_epoch = 0;
-        real_type bestFitness = 0;
-        bool operator = (real_type newFitness)
+        std::pair<real_type, real_type> minmax;
+        
+        bool assign(real_type min, real_type max)
         {
             bool needRecord = false;
-            if (newFitness > bestFitness)
+            if (max > this->minmax.second)
             {
-                real_type deltaFitness = newFitness - bestFitness;
-                bestFitness = newFitness;
-                message = "[" + std::to_string(n_epoch) +"]: "+ std::to_string(newFitness) + "(+" + std::to_string(deltaFitness) + ")";
+                real_type deltaMin = min  - this->minmax.first;
+                real_type deltaMax = max - this->minmax.second;
+                this->minmax.first  = min;
+                this->minmax.second = max;
+                message  = "[" + std::to_string(n_epoch) +"]: {";
+                message += std::to_string(this->minmax.first ) + "(" + (deltaMin>=0?"+":"") + std::to_string(deltaMin) + "), ";
+                message += std::to_string(this->minmax.second) + "(" + (deltaMax>=0?"+":"") + std::to_string(deltaMax) + ")";
+                message += "}";
                 needRecord = true;
             }
             n_epoch ++;
             return needRecord;
         }
+        template<typename MinMax>
+        typename std::enable_if<
+        /**/std::is_convertible<decltype(std::declval<MinMax>().first ), double>::value &&
+        /**/std::is_convertible<decltype(std::declval<MinMax>().second), double>::value ,
+        bool>::type
+        operator = (MinMax minmax)
+        {
+            return this->assign(minmax.first, minmax.second);
+        }
+        template<typename MinMax>
+        typename std::enable_if<
+        /**/std::is_convertible<decltype(*std::declval<MinMax>().first ), double>::value &&
+        /**/std::is_convertible<decltype(*std::declval<MinMax>().second), double>::value ,
+        bool>::type
+        operator = (MinMax minmax)
+        {
+            return this->assign(*minmax.first, *minmax.second);
+        }
+        
         operator std::string& () { return this->message; }
         operator const std::string& () const { return this->message; }
         

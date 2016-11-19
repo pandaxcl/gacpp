@@ -413,12 +413,11 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 GA.epoch();
                 
                 auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
-                if (report = *minmax_fitness.second)
+                if (report = minmax_fitness)
                 {
                     const auto&m = *GA.member_for_fitness(minmax_fitness.second);
                     auto x = m.at(0).value();
-                    std::cout << report << ", x = " << x ;
-                    std::cout << "\tfitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << ")" << std::endl;
+                    std::cout << report << ", x = " << x <<std::endl;
                     GA.keep_best_for_ratio(0.05);
                 }
                 
@@ -497,14 +496,13 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 GA.epoch();
                 auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
                 
-                if (report = *minmax_fitness.second)
+                if (report = minmax_fitness)
                 {
                     const auto&m = *GA.member_for_fitness(minmax_fitness.second);
                     auto x = m.at(0).value();
                     auto y = m.at(1).value();
                     
-                    std::cout << report << "\t(x, y) = (" << x << ", " << y <<")";
-                    std::cout << "\tfitness of (min, max) = (" << *minmax_fitness.first <<", "<< *minmax_fitness.second << "), "<<std::endl;
+                    std::cout << report << "\t(x, y) = (" << x << ", " << y <<")" << std::endl;
                     GA.keep_best_for_ratio(0.05);
                 }
                 
