@@ -1,7 +1,7 @@
 
 namespace algorithm {
     
-    template<typename Real>
+    template<typename Real, int N_epoch_width=4, int N_precision=16>
     struct simple_report
     {
         typedef Real real_type;
@@ -18,10 +18,18 @@ namespace algorithm {
                 real_type deltaMax = max - this->minmax.second;
                 this->minmax.first  = min;
                 this->minmax.second = max;
-                message  = "[" + std::to_string(n_epoch) +"]: {";
-                message += std::to_string(this->minmax.first ) + "(" + (deltaMin>=0?"+":"") + std::to_string(deltaMin) + "), ";
-                message += std::to_string(this->minmax.second) + "(" + (deltaMax>=0?"+":"") + std::to_string(deltaMax) + ")";
-                message += "}";
+                
+                {
+                    const size_t n = N_precision;
+                    std::ostringstream oss;
+                    oss << std::setprecision(n);
+                    oss << "[" << std::setw(N_epoch_width) << n_epoch << "]: {";
+                    oss << std::setw(n) << this->minmax.first  << "(" << (deltaMin>=0?"+":"") << std::setw(n) << deltaMin << "), ";
+                    oss << std::setw(n) << this->minmax.second << "(" << (deltaMax>=0?"+":"") << std::setw(n) << deltaMax << ")";
+                    oss << "}";
+                    message = oss.str();
+                }
+
                 needRecord = true;
             }
             n_epoch ++;
