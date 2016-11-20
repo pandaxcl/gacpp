@@ -417,6 +417,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 {
                     const auto&m = *GA.member_for_fitness(minmax_fitness.second);
                     auto x = m.at(0).value();
+                    std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << ", x = " << x <<std::endl;
                     GA.keep_best_for_ratio(0.05);
                 }
@@ -502,6 +503,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     auto x = m.at(0).value();
                     auto y = m.at(1).value();
                     
+                    std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << "\t(x, y) = (" << x << ", " << y <<")" << std::endl;
                     GA.keep_best_for_ratio(0.05);
                 }

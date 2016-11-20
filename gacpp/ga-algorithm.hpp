@@ -1,7 +1,7 @@
 
 namespace algorithm {
     
-    template<typename Real, int N_epoch_width=4, int N_precision=16>
+    template<typename Real, int N_epoch_width=6, int N_precision=16>
     struct simple_report
     {
         typedef Real real_type;
@@ -22,10 +22,10 @@ namespace algorithm {
                 {
                     const size_t n = N_precision;
                     std::ostringstream oss;
-                    oss << std::setprecision(n);
+                    oss << std::setprecision(n) << std::fixed;
                     oss << "[" << std::setw(N_epoch_width) << n_epoch << "]: {";
-                    oss << std::setw(n) << this->minmax.first  << "(" << (deltaMin>=0?"+":"") << std::setw(n) << deltaMin << "), ";
-                    oss << std::setw(n) << this->minmax.second << "(" << (deltaMax>=0?"+":"") << std::setw(n) << deltaMax << ")";
+                    oss << std::setw(n) << this->minmax.first  << "(" << std::showpos << std::setw(n) << deltaMin << "), ";
+                    oss << std::setw(n) << this->minmax.second << "(" << std::showpos << std::setw(n) << deltaMax << ")";
                     oss << "}";
                     message = oss.str();
                 }
