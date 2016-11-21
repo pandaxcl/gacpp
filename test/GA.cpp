@@ -411,14 +411,14 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             for (auto i=0; i<10000; i++)
             {
                 GA.epoch();
-                
-                auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
-                if (report = minmax_fitness)
+                GA.sort_members_by_fitness_with_descending_order();
+
+                if (report = GA.minmax_fitness_in_sorted_members_with_descending_order())
                 {
-                    const auto&m = *GA.member_for_fitness(minmax_fitness.second);
-                    auto x = m.at(0).value();
+                    const auto&mwf = GA.members_with_fitnesses().front();
+                    auto x = mwf.member.at(0).value();
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
-                    std::cout << report << ", x = " << x <<std::endl;
+                    std::cout << report << "\t x = " << x <<std::endl;
                     GA.keep_best_for_ratio(0.05);
                 }
                 
@@ -495,13 +495,13 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             for (auto i=0; i<10000; i++)
             {
                 GA.epoch();
-                auto minmax_fitness = std::minmax_element(std::begin(GA.fitnesses), std::end(GA.fitnesses));
+                GA.sort_members_by_fitness_with_descending_order();
                 
-                if (report = minmax_fitness)
+                if (report = GA.minmax_fitness_in_sorted_members_with_descending_order())
                 {
-                    const auto&m = *GA.member_for_fitness(minmax_fitness.second);
-                    auto x = m.at(0).value();
-                    auto y = m.at(1).value();
+                    const auto&mwf = GA.members_with_fitnesses().front();
+                    auto x = mwf.member.at(0).value();
+                    auto y = mwf.member.at(1).value();
                     
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << "\t(x, y) = (" << x << ", " << y <<")" << std::endl;

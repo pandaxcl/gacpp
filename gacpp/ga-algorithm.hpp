@@ -71,33 +71,33 @@ namespace algorithm {
         typedef Solution                                solution_type;
         typedef typename solution_type::real_type       real_type;
         typedef typename solution_type::random_engine   random_engine;
-		typedef std::vector<Member>                     members_type;
-		typedef std::vector<real_type>					fitnesses_type;
         
-        members_type      *members_ptr = nullptr;
-        members_type      *members_next_ptr = nullptr;
+        struct MemberWithFitness
+        {
+            real_type   fitness;
+            Member      member;
+//            operator Member& () { return this->member; }
+//            operator real_type& () { return this->fitness; }
+        };
+        typedef std::vector<MemberWithFitness> members_with_fitnesses_type;
+        
+        members_with_fitnesses_type      *members_ptr = nullptr;
+        members_with_fitnesses_type      *members_next_ptr = nullptr;
         struct {
-            members_type  members_front;
-            members_type  members_back;
+            members_with_fitnesses_type  members_front;
+            members_with_fitnesses_type  members_back;
         }buffer;
-        
-		fitnesses_type  fitnesses;
+
         std::random_device      rd;
         random_engine           random;
         
-        members_type&members() {
+        members_with_fitnesses_type&members_with_fitnesses() {
             assert(nullptr != this->members_ptr);
             return *this->members_ptr;
         }
-        members_type&members_next() {
+        members_with_fitnesses_type&members_with_fitnesses_next() {
             assert(nullptr != this->members_next_ptr);
             return *this->members_next_ptr;
-        }
-        
-        typename members_type::iterator member_for_fitness(typename fitnesses_type::iterator it) {
-            auto index = std::distance(std::begin(fitnesses), it);
-            auto it_member = std::begin(members()); std::advance(it_member, index);
-            return it_member;
         }
         
         team():random(rd())
@@ -117,7 +117,6 @@ namespace algorithm {
         {
             this->buffer.members_front.resize(n);
             this->buffer.members_back.resize(n);
-            this->fitnesses.resize(n);
         }
         void swap_buffers()
         {
@@ -126,18 +125,17 @@ namespace algorithm {
         void random_initialize()
         {
             auto&&members = *this->members_ptr;
-            for (auto&&member:members)
-                member.template random_initialize<solution_type>(random);
+            for (auto&&m:members)
+                m.member.template random_initialize<solution_type>(random);
             
         }
         real_type compute_fitnesses()
         {
-            auto&&members = *this->members_ptr;
             real_type fTotalFitness = real_type(0);
-            for (size_t i=0; i<members.size(); i++)
+            for (auto it=std::begin(this->members_with_fitnesses()); it!=std::end(this->members_with_fitnesses()); it++)
             {
-                this->fitnesses[i] = members[i].template compute_fitness<solution_type>(random);
-                fTotalFitness += this->fitnesses[i];
+                it->fitness = it->member.template compute_fitness<solution_type>(random);
+                fTotalFitness += it->fitness;
             }
             return fTotalFitness;
         }
@@ -151,34 +149,28 @@ namespace algorithm {
             {
                 auto select_one = [this, fTotalFitness]
                 {
-                    auto&&members = *this->members_ptr;
-                    typedef typename members_type::iterator member_iterator;
                     real_type fSlice = static_cast<real_type>(random())/random.max()*fTotalFitness;
-                    return selection::roulette_one(std::begin(members), std::end(members), fSlice,
-                                                   [this](member_iterator it)
+                    return selection::roulette_one(std::begin(this->members_with_fitnesses()),
+                                                   std::end(this->members_with_fitnesses()), fSlice,
+                                                   [this](typename members_with_fitnesses_type::iterator it)
                     {
-                        auto&&members = *this->members_ptr;
-                        assert(it != std::end(members));
-                        auto i = std::distance(std::begin(members), it);
-                        return this->fitnesses.at(i);
+                        assert(it != std::end(this->members_with_fitnesses()));
+                        return it->fitness;
                     });
                 };
-                auto&&members = *this->members_ptr;
-                assert(0 == members.size()%2);// must be even number
-                for (size_t i=0; i<members.size()/2; )
+                assert(0 == this->members_with_fitnesses().size()%2);// must be even number
+                for (size_t i=0; i<this->members_with_fitnesses().size()/2; )
                 {
-                    auto&&members_next = *this->members_next_ptr;
-                    
                     auto it_1 = select_one();
                     auto it_2 = select_one();
                     
-                    members_next[i*2+0] = *it_1;
-                    members_next[i*2+1] = *it_2;
+                    this->members_with_fitnesses_next()[i*2+0] = *it_1;
+                    this->members_with_fitnesses_next()[i*2+1] = *it_2;
                     
                     if (it_1 != it_2)
                     {
-                        auto&&A = members_next[i*2+0];
-                        auto&&B = members_next[i*2+1];
+                        auto&&A = this->members_with_fitnesses_next()[i*2+0].member;
+                        auto&&B = this->members_with_fitnesses_next()[i*2+1].member;
                         
                         A.template crossover<solution_type>(B, random);
                     }
@@ -188,44 +180,40 @@ namespace algorithm {
             
             // 3. mutate
             {
-                auto&&members_next = *this->members_next_ptr;
-                for (auto&&member:members_next)
+                for (auto&&m:this->members_with_fitnesses_next())
                 {
-                    member.template mutate<solution_type>(random);
+                    m.member.template mutate<solution_type>(random);
                 }
             }
         }
         
-        void keep_best_for_ratio(real_type ratio)
+        void sort_members_by_fitness_with_descending_order()
         {
-            struct Data
-            {
-                real_type                       fitness;
-                typename members_type::iterator it_member;
-                Data(decltype(fitness)f, decltype(it_member)it):fitness(f),it_member(it){}
-            };
-            std::vector<Data> tmp;
-            typename members_type::iterator it_member = std::begin(members());
-            for (auto it_fitness=std::begin(fitnesses); it_fitness!=std::end(fitnesses); )
-            {
-                tmp.push_back(Data(*it_fitness, it_member));
-                it_fitness++;
-                it_member++;
-            }
-            std::sort(std::begin(tmp), std::end(tmp), [](typename decltype(tmp)::value_type&a,
-                                                         typename decltype(tmp)::value_type&b){
+            typedef typename members_with_fitnesses_type::value_type value_type;
+            std::sort(std::begin(this->members_with_fitnesses()), std::end(this->members_with_fitnesses()), [](value_type&a, value_type&b) {
                 return a.fitness > b.fitness;
             });
-            
-            auto n = static_cast<std::size_t>(members().size() * ratio);
-            auto&&members = *this->members_ptr;
-            auto&&members_next = *this->members_next_ptr;
-            for (auto i=0; i<n; i++)
+        }
+        
+        auto minmax_fitness_in_sorted_members_with_descending_order()
+        ->  decltype(std::make_pair(this->members_with_fitnesses().back().fitness, this->members_with_fitnesses().front().fitness))
+        {
+            return std::make_pair(this->members_with_fitnesses().back().fitness, this->members_with_fitnesses().front().fitness);
+        }
+        
+        void keep_best_for_ratio(real_type ratio)
+        {
+            auto n = static_cast<std::size_t>(this->members_with_fitnesses().size() * ratio);
+            std::set<std::size_t> replace_points;
+            while (replace_points.size() < n)
             {
-                auto it_member = tmp.at(i).it_member;
-                auto index = std::distance(std::begin(members), it_member);
-                auto it = std::begin(members_next); std::advance(it, index);
-                members_next[index] = *it;
+                replace_points.insert(this->random()%this->members_with_fitnesses().size());
+            }
+            
+            std::size_t i=0;
+            for (auto it=std::begin(replace_points); it!=std::end(replace_points); it++,i++)
+            {
+                this->members_with_fitnesses_next()[*it] = this->members_with_fitnesses()[i];
             }
         }
     };
