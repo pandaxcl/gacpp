@@ -344,15 +344,15 @@ SCENARIO("c++11", "[GA]")
 template<typename Solution, int _N_variables>
 struct find_extremum
 {
-    typedef Solution                                                solution_type;
+    typedef Solution                                            solution_type;
     enum { N_variables = _N_variables };
-    typedef std::default_random_engine                              random_engine;
-    typedef double                                                  value_type;
-    typedef double                                                  real_type;
-    typedef gacpp::model::simple_gene<solution_type>                gene_type;
-    typedef gacpp::model::chromosome<gene_type, N_variables>        chromosome_type;
-    typedef typename chromosome_type::iterator                      gene_iterator;
-    typedef gacpp::algorithm::simple_team<chromosome_type, solution_type>  team_t;
+    typedef std::default_random_engine                          random_engine;
+    typedef double                                              value_type;
+    typedef double                                              real_type;
+    typedef gacpp::model::simple_gene<solution_type>            gene_type;
+    typedef gacpp::model::chromosome<gene_type, N_variables>    member_type;
+    typedef typename member_type::iterator                      gene_iterator;
+    typedef gacpp::algorithm::simple_team<solution_type>        team_t;
 };
 
 SCENARIO("simple_gene", "[GA][minimum][maximum]")

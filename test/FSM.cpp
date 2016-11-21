@@ -29,14 +29,13 @@ struct FindFiniteStateMachine
             actions_type    actions;
         }transition;
     };
-    typedef Value value_type;
-    
-    typedef double real_type;
-    typedef gacpp::model::basic_gene<this_type> gene_type;
-    typedef std::default_random_engine random_engine;
-    typedef gacpp::model::chromosome<gene_type,N_max_states> chromosome_type;
-    typedef typename chromosome_type::iterator gene_iterator;
-    typedef gacpp::algorithm::simple_team<chromosome_type, this_type> team_t;
+    typedef Value                                               value_type;
+    typedef double                                              real_type;
+    typedef gacpp::model::basic_gene<this_type>                 gene_type;
+    typedef std::default_random_engine                          random_engine;
+    typedef gacpp::model::chromosome<gene_type,N_max_states>    member_type;
+    typedef typename member_type::iterator                      gene_iterator;
+    typedef gacpp::algorithm::simple_team<this_type>            team_t;
     
 //    template<typename ForwardIterator, typename Random>
 //    void random_initialize(ForwardIterator it, Random&&random)

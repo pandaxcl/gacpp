@@ -65,19 +65,18 @@ namespace algorithm {
         }
     };
 
-    template<typename Member, typename Solution>
+    template<typename Solution>
     struct simple_team
     {
         typedef Solution                                solution_type;
         typedef typename solution_type::real_type       real_type;
         typedef typename solution_type::random_engine   random_engine;
+        typedef typename solution_type::member_type     member_type;
         
         struct MemberWithFitness
         {
             real_type   fitness;
-            Member      member;
-//            operator Member& () { return this->member; }
-//            operator real_type& () { return this->fitness; }
+            member_type member;
         };
         typedef std::vector<MemberWithFitness> members_with_fitnesses_type;
         
