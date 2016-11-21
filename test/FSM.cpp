@@ -9,99 +9,109 @@
 template<int N_max_states, int N_conditions, int N_actions>
 struct FindFiniteStateMachine
 {
-    typedef FindFiniteStateMachine this_type;
+    typedef FindFiniteStateMachine                              this_type;
+    typedef std::vector<size_t>                                 actions_type;
     
-    typedef std::vector<size_t> actions_type;
+    struct Value;
+    typedef Value                                               value_type;
+    typedef std::default_random_engine                          random_engine_type;
+    typedef double                                              real_type;
+    typedef gacpp::model::basic_gene<this_type>                 gene_type;
+    typedef gacpp::model::chromosome<gene_type,N_max_states>    member_type;
+    typedef typename member_type::iterator                      gene_iterator;
+    typedef gacpp::algorithm::simple_team<this_type>            team_t;
    
     struct Value
     {
-        enum class T:size_t {INITIAL, STATE, TRANSITION} type;
+        static void random_generate_actions(actions_type&actions, random_engine_type&random)
+        {
+            actions.resize(random()%5);
+            for (auto&&action:actions)
+                action = random()%N_actions;
+        };
+        static void mutate_one_action_for_actions(actions_type&actions, random_engine_type&random)
+        {
+            if (actions.size() == 1)
+                actions[0] = random()%N_actions;
+            else if (actions.size() > 1)
+                actions[random()%actions.size()] = random()%N_actions;
+        }
+        enum class T:char {INITIAL, STATE, TRANSITION} type;
         struct {
             size_t          state = 0;
+            void random_initialize(random_engine_type&random)
+            {
+                state = random()%N_max_states;
+            }
+            void mutate(random_engine_type&random)
+            {
+                state = random()%N_max_states;
+            }
         }initial;
         struct {
             actions_type    on_enter;
             actions_type    on_leave;
+            void random_initialize(random_engine_type&random)
+            {
+                Value::random_generate_actions(on_enter, random);
+                Value::random_generate_actions(on_leave, random);
+            }
+            void mutate(random_engine_type&random)
+            {
+                if(0 == random()%2) Value::mutate_one_action_for_actions(on_enter, random);
+                if(0 == random()%2) Value::mutate_one_action_for_actions(on_leave, random);
+                if(0 == random()%10) Value::random_generate_actions(on_enter, random);
+                if(0 == random()%10) Value::random_generate_actions(on_leave, random);
+            }
         }state;
         struct {
             size_t          condition;
             size_t          target_state;
             actions_type    actions;
+            void random_initialize(random_engine_type&random)
+            {
+                condition = random()%N_conditions;
+                target_state = random()%N_max_states;
+                Value::random_generate_actions(actions, random);
+            }
+            void mutate(random_engine_type&random)
+            {
+                if (0 == random()%3) condition = random()%N_conditions;
+                if (0 == random()%3) target_state = random()%N_max_states;
+                if (0 == random()%3) Value::mutate_one_action_for_actions(actions, random);
+                if (0 == random()%10) Value::random_generate_actions(actions, random);
+            }
         }transition;
-    };
-    typedef Value                                               value_type;
-    typedef double                                              real_type;
-    typedef gacpp::model::basic_gene<this_type>                 gene_type;
-    typedef std::default_random_engine                          random_engine_type;
-    typedef gacpp::model::chromosome<gene_type,N_max_states>    member_type;
-    typedef typename member_type::iterator                      gene_iterator;
-    typedef gacpp::algorithm::simple_team<this_type>            team_t;
-    
-//    template<typename ForwardIterator, typename Random>
-//    void random_initialize(ForwardIterator it, Random&&random)
-//    {
-//    }
-    template<typename ForwardIterator, typename Random>
-    static void random_initialize(ForwardIterator begin, ForwardIterator end, Random&&random)
-    {
-        auto random_generate_actions = [&random](actions_type&actions){
-            actions.resize(random()%5);
-            for (auto&&action:actions)
-                action = random()%N_actions;
-        };
-        auto random_initialize_for_initial = [&random](ForwardIterator it){
-            auto&&self = it->_value;
-            self.type = value_type::T::INITIAL;
-            self.initial.state = random()%N_max_states;
-        };
-        
-        auto random_initialize_for_state = [&random,&random_generate_actions](ForwardIterator it){
-            auto&&self = it->_value;
-            self.type = value_type::T::STATE;
-            random_generate_actions(self.state.on_enter);
-            random_generate_actions(self.state.on_leave);
-        };
-        auto random_initialize_for_transition = [&random,&random_generate_actions](ForwardIterator it){
-            auto&&self = it->_value;
-            self.type = value_type::T::TRANSITION;
-            self.transition.condition = random()%N_conditions;
-            self.transition.target_state = random()%N_max_states;
-            random_generate_actions(self.transition.actions);
-        };
-        for (auto it=begin; it!=end; it++)
+        void random_initialize(random_engine_type&random)
         {
-            size_t index = std::distance(begin, it);
-            if (0 == index)
-                random_initialize_for_initial(it);
-            else if (1 <= index && index < 1+N_max_states)
-                random_initialize_for_state(it);
-            else
-                random_initialize_for_transition(it);
+            type = static_cast<T>(random()%3);
+            initial.random_initialize(random);
+            state.random_initialize(random);
+            transition.random_initialize(random);
         }
-        
+        void mutate(random_engine_type&random)
+        {
+            if (0 == random()%10) type = static_cast<T>(random()%3);
+            if (0 == random()%5) initial.mutate(random);
+            if (0 == random()%2) state.mutate(random);
+            if (0 == random()%2) transition.mutate(random);
+        }
+    };
+    
+    static void random_initialize(gene_iterator it, random_engine_type&random)
+    {
+        it->value().random_initialize(random);
     }
-    template<typename ForwardIterator, typename Random>
-    static real_type compute_fitness(ForwardIterator begin, ForwardIterator end, Random&&random)
+    
+    static real_type compute_fitness(gene_iterator begin, gene_iterator end, random_engine_type&random)
     {
         return real_type(0);
     }
     
-    template<typename ForwardIterator, typename Random>
-    static void crossover(ForwardIterator begin1, ForwardIterator end1,
-                          ForwardIterator begin2, ForwardIterator end2, Random&&random)
+    static void mutate(gene_iterator it, random_engine_type&random)
     {
-        
+        it->value().mutate(random);
     }
-    template<typename ForwardIterator, typename Random>
-    static void mutate(ForwardIterator it, Random&&random)
-    {
-        
-    }
-//    template<typename ForwardIterator, typename Random>
-//    static void mutate(ForwardIterator begin, ForwardIterator end, Random&&random)
-//    {
-//        
-//    }
 };
 
 SCENARIO("", "[FSM]")
@@ -220,9 +230,9 @@ SCENARIO("", "[FSM]")
         const int N_conditions = 2;
         const int N_actions = 2;
         typedef FindFiniteStateMachine<N_max_states, N_conditions, N_actions> Solution;
-        static_assert(gacpp::model::basic_gene_concept::random_initialize::range<Solution>::enabled, "");
+        static_assert(gacpp::model::basic_gene_concept::random_initialize::single<Solution>::enabled, "");
         static_assert(gacpp::model::basic_gene_concept::compute_fitness::range<Solution>::enabled, "");
-        static_assert(gacpp::model::basic_gene_concept::crossover::two_ranges<Solution>::enabled, "");
+        static_assert(!gacpp::model::basic_gene_concept::crossover::two_ranges<Solution>::enabled, "");
         static_assert(gacpp::model::basic_gene_concept::mutate::single<Solution>::enabled, "");
         
         

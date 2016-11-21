@@ -8,10 +8,10 @@ namespace model {
             struct single
             {
                 typedef typename Solution::random_engine_type   Random;
-                typedef typename Solution::gene_iterator        ForwardIterator;
+                typedef typename Solution::gene_iterator        Iterator;
                 typedef typename Solution::gene_type            Gene;
                 template<typename X> static typename std::enable_if<
-                /**/std::is_void<decltype(X::random_initialize(std::declval<ForwardIterator>(),
+                /**/std::is_void<decltype(X::random_initialize(std::declval<Iterator>(),
                                                                *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
@@ -21,10 +21,10 @@ namespace model {
             struct range
             {
                 typedef typename Solution::random_engine_type   Random;
-                typedef typename Solution::gene_iterator        ForwardIterator;
+                typedef typename Solution::gene_iterator        Iterator;
                 template<typename X> static typename std::enable_if<
-                /**/std::is_void<decltype(X::random_initialize(std::declval<ForwardIterator>(),
-                                                               std::declval<ForwardIterator>(),
+                /**/std::is_void<decltype(X::random_initialize(std::declval<Iterator>(),
+                                                               std::declval<Iterator>(),
                                                                *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
@@ -38,11 +38,11 @@ namespace model {
             struct range
             {
                 typedef typename Solution::random_engine_type   Random;
-                typedef typename Solution::gene_iterator        ForwardIterator;
+                typedef typename Solution::gene_iterator        Iterator;
                 typedef typename Solution::real_type            real_type;
                 template<typename X> static typename std::enable_if<
-                /**/std::is_floating_point<decltype(X::compute_fitness(std::declval<ForwardIterator>(),
-                                                                       std::declval<ForwardIterator>(),
+                /**/std::is_floating_point<decltype(X::compute_fitness(std::declval<Iterator>(),
+                                                                       std::declval<Iterator>(),
                                                                        *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
@@ -56,12 +56,12 @@ namespace model {
             struct two_ranges
             {
                 typedef typename Solution::random_engine_type   Random;
-                typedef typename Solution::gene_iterator        ForwardIterator;
+                typedef typename Solution::gene_iterator        Iterator;
                 template<typename X> static typename std::enable_if<
-                /**/std::is_void<decltype(X::crossover(std::declval<ForwardIterator>(),
-                                                       std::declval<ForwardIterator>(),
-                                                       std::declval<ForwardIterator>(),
-                                                       std::declval<ForwardIterator>(),
+                /**/std::is_void<decltype(X::crossover(std::declval<Iterator>(),
+                                                       std::declval<Iterator>(),
+                                                       std::declval<Iterator>(),
+                                                       std::declval<Iterator>(),
                                                        *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
@@ -75,9 +75,9 @@ namespace model {
             struct single
             {
                 typedef typename Solution::random_engine_type   Random;
-                typedef typename Solution::gene_iterator        ForwardIterator;
+                typedef typename Solution::gene_iterator        Iterator;
                 template<typename X> static typename std::enable_if<
-                /**/std::is_void<decltype(X::mutate(std::declval<ForwardIterator>(),
+                /**/std::is_void<decltype(X::mutate(std::declval<Iterator>(),
                                                     *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
@@ -87,10 +87,10 @@ namespace model {
             struct range
             {
                 typedef typename Solution::random_engine_type   Random;
-                typedef typename Solution::gene_iterator        ForwardIterator;
+                typedef typename Solution::gene_iterator        Iterator;
                 template<typename X> static typename std::enable_if<
-                /**/std::is_void<decltype(X::mutate(std::declval<ForwardIterator>(),
-                                                    std::declval<ForwardIterator>(),
+                /**/std::is_void<decltype(X::mutate(std::declval<Iterator>(),
+                                                    std::declval<Iterator>(),
                                                     *static_cast<Random*>(nullptr)))>::value
                 >::type check(int);
                 template<typename X> static std::false_type check(...);
@@ -202,25 +202,25 @@ namespace model {
             struct single
             {
                 typedef typename Solution::random_engine_type Random;
-                typedef typename Solution::gene_iterator ForwardIterator;
+                typedef typename Solution::gene_iterator Iterator;
                 template<typename X, typename Iterator> static typename std::enable_if<
                 /**/basic_gene_concept::mutate::single<X>::enabled&&
                 /**/std::is_floating_point<decltype(X::rate_for_mutate())>::value
                 >::type check(int);
                 template<typename X,typename Iterator> static std::false_type check(...);
-                enum { enabled = std::is_void<decltype(check<Solution,ForwardIterator>(0))>::value };
+                enum { enabled = std::is_void<decltype(check<Solution,Iterator>(0))>::value };
             };
             template<typename Solution>
             struct range
             {
                 typedef typename Solution::random_engine_type Random;
-                typedef typename Solution::gene_iterator ForwardIterator;
+                typedef typename Solution::gene_iterator Iterator;
                 template<typename X, typename Iterator> static typename std::enable_if<
                 /**/basic_gene_concept::mutate::range<X>::enabled&&
                 /**/std::is_floating_point<decltype(X::rate_for_mutate())>::value
                 >::type check(int);
                 template<typename X,typename Iterator> static std::false_type check(...);
-                enum { enabled = std::is_void<decltype(check<Solution,ForwardIterator>(0))>::value };
+                enum { enabled = std::is_void<decltype(check<Solution,Iterator>(0))>::value };
             };
         };
         
@@ -229,16 +229,16 @@ namespace model {
         //struct fitness
         //{
         //    typedef typename Solution::random_engine_type Random;
-        //    typedef typename Solution::gene_iterator ForwardIterator;
+        //    typedef typename Solution::gene_iterator Iterator;
         //    template<typename X, typename Iterator> static typename std::enable_if<
         //    /**/std::is_floating_point<decltype(X::fitness(std::declval<Iterator>(),
         //                                                   std::declval<Iterator>(),
         //                                                   *static_cast<Random*>(nullptr)))>::value
         //    >::type check(int);
         //    template<typename X, typename Iterator> static std::false_type check(...);
-        //    enum { enabled = std::is_void<decltype(check<Solution, ForwardIterator>(0))>::value };
+        //    enum { enabled = std::is_void<decltype(check<Solution, Iterator>(0))>::value };
         //
-        //    //template<typename ForwardIterator, typename R> static real_type fitness(ForwardIterator begin, ForwardIterator end, R&&random){}
+        //    //template<typename Iterator, typename R> static real_type fitness(Iterator begin, Iterator end, R&&random){}
         //};
         
     };
@@ -255,28 +255,28 @@ namespace model {
         {
             return static_cast<real_type>(random())/static_cast<real_type>(random.max());
         }
-        //template<typename ForwardIterator> static void random_initialize(ForwardIterator it, random_engine_type&random) { }
-        template<typename ForwardIterator>
-        static void random_initialize(ForwardIterator begin, ForwardIterator end, random_engine_type&random)
+        //template<typename Iterator> static void random_initialize(Iterator it, random_engine_type&random) { }
+        template<typename Iterator>
+        static void random_initialize(Iterator begin, Iterator end, random_engine_type&random)
         {
             detail::template random_initialize<Solution>(begin, end, random);
         }
-        template<typename ForwardIterator>
-        static real_type compute_fitness(ForwardIterator begin, ForwardIterator end, random_engine_type&random)
+        template<typename Iterator>
+        static real_type compute_fitness(Iterator begin, Iterator end, random_engine_type&random)
         {
             return Solution::compute_fitness(begin, end, random);
         }
         
-        template<typename ForwardIterator>
-        static void crossover(ForwardIterator begin1, ForwardIterator end1,
-                              ForwardIterator begin2, ForwardIterator end2, random_engine_type&random)
+        template<typename Iterator>
+        static void crossover(Iterator begin1, Iterator end1,
+                              Iterator begin2, Iterator end2, random_engine_type&random)
         {
             detail::template crossover_with_linear_interpolation<Solution>(begin1, end1, begin2, end2, random);
             detail::template crossover_with_single_point        <Solution>(begin1, end1, begin2, end2, random);
         }
-        //template<typename ForwardIterator> static void mutate(ForwardIterator it, random_engine_type&random) { }
-        template<typename ForwardIterator>
-        static void mutate(ForwardIterator begin, ForwardIterator end, random_engine_type&random)
+        //template<typename Iterator> static void mutate(Iterator it, random_engine_type&random) { }
+        template<typename Iterator>
+        static void mutate(Iterator begin, Iterator end, random_engine_type&random)
         {
             detail::template mutate<Solution>(begin, end, random);
         }
@@ -284,15 +284,15 @@ namespace model {
         
         struct detail {
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            template<typename F, typename ForwardIterator>
+            template<typename F, typename Iterator>
             static typename std::enable_if<simple_gene_concept::random_initialize::template range<F>::enabled>::type
-            random_initialize(ForwardIterator begin, ForwardIterator end, typename F::random_engine_type&random)
+            random_initialize(Iterator begin, Iterator end, typename F::random_engine_type&random)
             {
                 F::random_initialize(begin, end, random);
             }
-            template<typename F, typename ForwardIterator>
+            template<typename F, typename Iterator>
             static typename std::enable_if<simple_gene_concept::random_initialize::template single<F>::enabled>::type
-            random_initialize(ForwardIterator begin, ForwardIterator end, typename F::random_engine_type&random)
+            random_initialize(Iterator begin, Iterator end, typename F::random_engine_type&random)
             {
                 for (auto it=begin; it!=end; it++)
                 {
@@ -302,10 +302,10 @@ namespace model {
             template<typename F>
             static void random_initialize(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            template<typename F, typename ForwardIterator>
+            template<typename F, typename Iterator>
             static typename std::enable_if<simple_gene_concept::template crossover_with_single_point<F>::enabled>::type
-            crossover_with_single_point(ForwardIterator begin1, ForwardIterator end1,
-                                        ForwardIterator begin2, ForwardIterator end2, typename F::random_engine_type&random)
+            crossover_with_single_point(Iterator begin1, Iterator end1,
+                                        Iterator begin2, Iterator end2, typename F::random_engine_type&random)
             {
                 assert(std::distance(begin1, end1) > 1);
                 if (rate(random) < F::rate_for_crossover_with_single_point())
@@ -322,10 +322,10 @@ namespace model {
             template<typename F>
             static void crossover_with_single_point(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            template<typename F, typename ForwardIterator>
+            template<typename F, typename Iterator>
             static typename std::enable_if<simple_gene_concept::template crossover_with_linear_interpolation<F>::enabled>::type
-            crossover_with_linear_interpolation(ForwardIterator begin1, ForwardIterator end1,
-                                                ForwardIterator begin2, ForwardIterator end2, typename F::random_engine_type&random)
+            crossover_with_linear_interpolation(Iterator begin1, Iterator end1,
+                                                Iterator begin2, Iterator end2, typename F::random_engine_type&random)
             {
                 for (auto it=begin1; it!=end1; it++)
                 {
@@ -341,9 +341,9 @@ namespace model {
             static void crossover_with_linear_interpolation(...){}
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             
-            template<typename F, typename ForwardIterator>
+            template<typename F, typename Iterator>
             static typename std::enable_if<simple_gene_concept::mutate::template single<F>::enabled>::type
-            mutate(ForwardIterator begin, ForwardIterator end, typename F::random_engine_type&random)
+            mutate(Iterator begin, Iterator end, typename F::random_engine_type&random)
             {
                 for (auto it=begin; it!=end; it++)
                 {
@@ -351,9 +351,9 @@ namespace model {
                         F::mutate(it, random);
                 }
             }
-            template<typename F, typename ForwardIterator>
+            template<typename F, typename Iterator>
             static typename std::enable_if<simple_gene_concept::mutate::template range<F>::enabled>::type
-            mutate(ForwardIterator begin, ForwardIterator end, typename F::random_engine_type&random)
+            mutate(Iterator begin, Iterator end, typename F::random_engine_type&random)
             {
                 F::mutate(begin, end, random);
             }
