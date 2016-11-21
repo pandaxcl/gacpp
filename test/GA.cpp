@@ -346,7 +346,7 @@ struct find_extremum
 {
     typedef Solution                                            solution_type;
     enum { N_variables = _N_variables };
-    typedef std::default_random_engine                          random_engine;
+    typedef std::default_random_engine                          random_engine_type;
     typedef double                                              value_type;
     typedef double                                              real_type;
     typedef gacpp::model::simple_gene<solution_type>            gene_type;
@@ -369,18 +369,18 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 return 0.044;
             }
             
-            static void random_initialize(gene_iterator it, random_engine&random)
+            static void random_initialize(gene_iterator it, random_engine_type&random)
             {
                 auto t = gacpp::util::random_0_1<real_type>(random);
                 it->_value = gacpp::util::value_in_range_with_ratio(-1.0, 2.0, t);
             }
             
-            static void mutate(gene_iterator it, random_engine&random)
+            static void mutate(gene_iterator it, random_engine_type&random)
             {
                 gacpp::mutate::for_real_value_clamped_in_range(it->_value, random, 0.1, -1.0, 2.0);
             }
             
-            static real_type compute_fitness(gene_iterator begin, gene_iterator end, random_engine&random)
+            static real_type compute_fitness(gene_iterator begin, gene_iterator end, random_engine_type&random)
             {
                 assert(std::distance(begin, end) == 1);
                 auto&&x = static_cast<real_type&>(*begin);
@@ -434,7 +434,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             static real_type rate_for_crossover_with_linear_interpolation() { return 0.4; }
             static real_type rate_for_mutate() { return 0.044; }
             
-            static void random_initialize(gene_iterator begin, gene_iterator end, random_engine&random)
+            static void random_initialize(gene_iterator begin, gene_iterator end, random_engine_type&random)
             {
                 assert(std::distance(begin, end) == 2);
                 auto x_it = begin; std::advance(x_it, 0);
@@ -446,7 +446,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 y = gacpp::util::value_in_range_with_ratio(-2.0, +2.0, gacpp::util::random_0_1<real_type>(random));
             }
 
-            static void mutate(gene_iterator begin, gene_iterator end, random_engine&random)
+            static void mutate(gene_iterator begin, gene_iterator end, random_engine_type&random)
             {
                 auto n = std::distance(begin, end);
                 assert(std::distance(begin, end) == 2);
@@ -459,7 +459,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 gacpp::mutate::for_real_value_clamped_in_range(y, random, 4.0, -2.0, +2.0);
             }
             
-            static real_type compute_fitness(gene_iterator begin, gene_iterator end, random_engine&random)
+            static real_type compute_fitness(gene_iterator begin, gene_iterator end, random_engine_type&random)
             {
                 auto n = std::distance(begin, end);
                 assert(std::distance(begin, end) == 2);

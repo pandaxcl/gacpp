@@ -68,10 +68,10 @@ namespace algorithm {
     template<typename Solution>
     struct simple_team
     {
-        typedef Solution                                solution_type;
-        typedef typename solution_type::real_type       real_type;
-        typedef typename solution_type::random_engine   random_engine;
-        typedef typename solution_type::member_type     member_type;
+        typedef Solution                                    solution_type;
+        typedef typename solution_type::real_type           real_type;
+        typedef typename solution_type::random_engine_type  random_engine_type;
+        typedef typename solution_type::member_type         member_type;
         
         struct MemberWithFitness
         {
@@ -87,8 +87,8 @@ namespace algorithm {
             members_with_fitnesses_type  members_back;
         }buffer;
 
-        std::random_device      rd;
-        random_engine           random;
+        std::random_device  rd;
+        random_engine_type  random;
         
         members_with_fitnesses_type&members_with_fitnesses() {
             assert(nullptr != this->members_ptr);
