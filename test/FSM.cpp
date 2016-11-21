@@ -6,7 +6,7 @@
 #include "gacpp/ga-fsm.hpp"
 #include <iostream>
 
-template<int N_max_states, int N_conditions, int N_actions>
+template<int N_max_states>
 struct FindFiniteStateMachine
 {
     typedef FindFiniteStateMachine                              this_type;
@@ -20,6 +20,10 @@ struct FindFiniteStateMachine
     typedef gacpp::model::chromosome<gene_type,N_max_states>    member_type;
     typedef typename member_type::iterator                      gene_iterator;
     typedef gacpp::algorithm::simple_team<this_type>            team_t;
+    
+    static finite_state_machine::machine machine;
+    static size_t N_actions() { return machine.actions.size(); }
+    static size_t N_conditions() { return machine.conditions.size(); }
    
     struct Value
     {
@@ -27,25 +31,25 @@ struct FindFiniteStateMachine
         {
             actions.resize(random()%5);
             for (auto&&action:actions)
-                action = random()%N_actions;
+                action = gacpp::util::random_index_for_size(this_type::N_actions(), random());
         };
         static void mutate_one_action_for_actions(actions_type&actions, random_engine_type&random)
         {
             if (actions.size() == 1)
-                actions[0] = random()%N_actions;
+                actions[0] = gacpp::util::random_index_for_size(this_type::N_actions(), random());
             else if (actions.size() > 1)
-                actions[random()%actions.size()] = random()%N_actions;
+                actions[random()%actions.size()] = gacpp::util::random_index_for_size(this_type::N_actions(), random());
         }
         enum class T:char {INITIAL, STATE, TRANSITION} type;
         struct {
             size_t          state = 0;
             void random_initialize(random_engine_type&random)
             {
-                state = random()%N_max_states;
+                state = gacpp::util::random_index_for_size(N_max_states, random());
             }
             void mutate(random_engine_type&random)
             {
-                state = random()%N_max_states;
+                state = gacpp::util::random_index_for_size(N_max_states, random());
             }
         }initial;
         struct {
@@ -70,14 +74,14 @@ struct FindFiniteStateMachine
             actions_type    actions;
             void random_initialize(random_engine_type&random)
             {
-                condition = random()%N_conditions;
-                target_state = random()%N_max_states;
+                condition = gacpp::util::random_index_for_size(this_type::N_conditions(), random());
+                target_state = gacpp::util::random_index_for_size(N_max_states, random());
                 Value::random_generate_actions(actions, random);
             }
             void mutate(random_engine_type&random)
             {
-                if (0 == random()%3) condition = random()%N_conditions;
-                if (0 == random()%3) target_state = random()%N_max_states;
+                if (0 == random()%3) condition = gacpp::util::random_index_for_size(this_type::N_conditions(), random());
+                if (0 == random()%3) target_state = gacpp::util::random_index_for_size(N_max_states, random());
                 if (0 == random()%3) Value::mutate_one_action_for_actions(actions, random);
                 if (0 == random()%10) Value::random_generate_actions(actions, random);
             }
@@ -113,6 +117,9 @@ struct FindFiniteStateMachine
         it->value().mutate(random);
     }
 };
+
+template<int N_max_states>
+finite_state_machine::machine FindFiniteStateMachine<N_max_states>::machine;
 
 SCENARIO("", "[FSM]")
 {
@@ -227,21 +234,20 @@ SCENARIO("", "[FSM]")
     GIVEN("living room's lights")
     {
         const int N_max_states = 10;
-        const int N_conditions = 2;
-        const int N_actions = 2;
-        typedef FindFiniteStateMachine<N_max_states, N_conditions, N_actions> Solution;
+        
+        typedef FindFiniteStateMachine<N_max_states> Solution;
         static_assert(gacpp::model::basic_gene_concept::random_initialize::single<Solution>::enabled, "");
         static_assert(gacpp::model::basic_gene_concept::compute_fitness::range<Solution>::enabled, "");
         static_assert(!gacpp::model::basic_gene_concept::crossover::two_ranges<Solution>::enabled, "");
         static_assert(gacpp::model::basic_gene_concept::mutate::single<Solution>::enabled, "");
         
         
-        Solution::team_t GA(100);
-        REQUIRE(GA.size() == 100);
-        GA.resize(200);
-        REQUIRE(GA.size() == 200);
-        GA.random_initialize();
-        GA.epoch();
+//        Solution::team_t GA(100);
+//        REQUIRE(GA.size() == 100);
+//        GA.resize(200);
+//        REQUIRE(GA.size() == 200);
+//        GA.random_initialize();
+//        GA.epoch();
     }
     
     GIVEN("clock")

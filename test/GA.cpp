@@ -339,6 +339,26 @@ SCENARIO("c++11", "[GA]")
             }
         }
     }
+    GIVEN("random_index_for_size")
+    {
+        REQUIRE(0 == gacpp::util::random_index_for_size(1, 0));
+        REQUIRE(0 == gacpp::util::random_index_for_size(1, 1));
+        
+        REQUIRE(0 == gacpp::util::random_index_for_size(2, 0));
+        REQUIRE(1 == gacpp::util::random_index_for_size(2, 1));
+        REQUIRE(0 == gacpp::util::random_index_for_size(2, 2));
+        
+        REQUIRE(0 == gacpp::util::random_index_for_size(3, 0));
+        REQUIRE(1 == gacpp::util::random_index_for_size(3, 1));
+        REQUIRE(2 == gacpp::util::random_index_for_size(3, 2));
+        REQUIRE(0 == gacpp::util::random_index_for_size(3, 3));
+        
+        REQUIRE(0 == gacpp::util::random_index_for_size(4, 0));
+        REQUIRE(1 == gacpp::util::random_index_for_size(4, 1));
+        REQUIRE(2 == gacpp::util::random_index_for_size(4, 2));
+        REQUIRE(3 == gacpp::util::random_index_for_size(4, 3));
+        REQUIRE(0 == gacpp::util::random_index_for_size(4, 4));
+    }
 }
 
 template<typename Solution, int _N_variables>

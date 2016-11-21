@@ -32,4 +32,14 @@ namespace util {
         return static_cast<Real>(random())/random.max();
     }
     
+    template<typename Integer, typename RandomNumber>
+    typename std::enable_if<std::is_integral<Integer>::value && std::is_integral<RandomNumber>::value, Integer>::type
+    random_index_for_size(Integer N, RandomNumber random)
+    {
+        assert(0 != N);
+        assert(N > 0);
+        if (1 == N) return 0;
+        return random%N;
+    }
+    
 }// namespace util {
