@@ -352,7 +352,7 @@ struct find_extremum
     typedef gacpp::model::simple_gene<solution_type>                gene_type;
     typedef gacpp::model::chromosome<gene_type, N_variables>        chromosome_type;
     typedef typename chromosome_type::iterator                      gene_iterator;
-    typedef gacpp::algorithm::team<chromosome_type, solution_type>  team_t;
+    typedef gacpp::algorithm::simple_team<chromosome_type, solution_type>  team_t;
 };
 
 SCENARIO("simple_gene", "[GA][minimum][maximum]")
@@ -418,7 +418,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     const auto&mwf = GA.members_with_fitnesses().front();
                     auto x = mwf.member.at(0).value();
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
-                    std::cout << report << "\t x = " << x <<std::endl;
+                    std::cout << report << "\tx = " << x <<std::endl;
                     GA.keep_best_for_ratio(0.05);
                 }
                 

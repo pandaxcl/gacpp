@@ -66,7 +66,7 @@ namespace algorithm {
     };
 
     template<typename Member, typename Solution>
-    struct team
+    struct simple_team
     {
         typedef Solution                                solution_type;
         typedef typename solution_type::real_type       real_type;
@@ -100,18 +100,18 @@ namespace algorithm {
             return *this->members_next_ptr;
         }
         
-        team():random(rd())
+        simple_team():random(rd())
         {
             members_ptr = &buffer.members_front;
             members_next_ptr = &buffer.members_back;
         }
-        team(size_t n):team()
+        simple_team(size_t n):simple_team()
         {
             resize(n);
         }
         size_t size()
         {
-            return this->members_ptr->size();
+            return this->members_with_fitnesses().size();
         }
         void resize(size_t n)
         {
@@ -124,9 +124,8 @@ namespace algorithm {
         }
         void random_initialize()
         {
-            auto&&members = *this->members_ptr;
-            for (auto&&m:members)
-                m.member.template random_initialize<solution_type>(random);
+            for (auto&&mwf:this->members_with_fitnesses())
+                mwf.member.template random_initialize<solution_type>(random);
             
         }
         real_type compute_fitnesses()
