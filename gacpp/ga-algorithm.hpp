@@ -24,8 +24,8 @@ namespace algorithm {
                     std::ostringstream oss;
                     oss << std::setprecision(n) << std::fixed;
                     oss << "[" << std::setw(N_epoch_width) << n_epoch << "]: {";
-                    oss << std::setw(n) << this->minmax.first  << "(" << std::showpos << std::setw(n) << deltaMin << "), ";
-                    oss << std::setw(n) << this->minmax.second << "(" << std::showpos << std::setw(n) << deltaMax << ")";
+                    oss << std::setw(n) << std::noshowpos << this->minmax.first  << "(" << std::showpos << std::setw(n) << deltaMin << "), ";
+                    oss << std::setw(n) << std::noshowpos << this->minmax.second << "(" << std::showpos << std::setw(n) << deltaMax << ")";
                     oss << "}";
                     message = oss.str();
                 }
