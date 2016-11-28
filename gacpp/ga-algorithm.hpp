@@ -1,7 +1,7 @@
 
 namespace algorithm {
     
-    template<typename Real, int N_epoch_width=6, int N_precision=16>
+    template<typename Real, int N_epoch_width=6, int N_precision=16, int N_time_over_seconds=5>
     struct simple_report
     {
         typedef Real real_type;
@@ -9,10 +9,21 @@ namespace algorithm {
         std::size_t n_epoch = 0;
         std::pair<real_type, real_type> minmax;
         
+        std::chrono::time_point<std::chrono::steady_clock> last_time = std::chrono::steady_clock::now();
+        
         bool assign(real_type min, real_type max)
         {
             bool needRecord = false;
-            if (max > this->minmax.second)
+            bool timeOver = false;
+            {
+                auto current_time = std::chrono::steady_clock::now();
+                auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<int>>(current_time - last_time);
+                timeOver = duration_seconds > std::chrono::seconds(N_time_over_seconds);
+                if (timeOver)
+                    last_time = current_time;
+            }
+            
+            if (max > this->minmax.second || timeOver)
             {
                 real_type deltaMin = min  - this->minmax.first;
                 real_type deltaMax = max - this->minmax.second;
