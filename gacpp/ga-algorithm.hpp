@@ -23,6 +23,7 @@ namespace algorithm {
                     const size_t n = N_precision;
                     std::ostringstream oss;
                     oss << std::setprecision(n) << std::fixed;
+                    oss << std::setw(14) << std::this_thread::get_id();
                     oss << "[" << std::setw(N_epoch_width) << n_epoch << "]: {";
                     oss << std::setw(n) << std::noshowpos << this->minmax.first  << "(" << std::showpos << std::setw(n) << deltaMin << "), ";
                     oss << std::setw(n) << std::noshowpos << this->minmax.second << "(" << std::showpos << std::setw(n) << deltaMax << ")";
@@ -68,6 +69,7 @@ namespace algorithm {
     template<typename Solution>
     struct simple_team
     {
+        typedef simple_team                                 this_type;
         typedef Solution                                    solution_type;
         typedef typename solution_type::real_type           real_type;
         typedef typename solution_type::random_engine_type  random_engine_type;
@@ -99,7 +101,7 @@ namespace algorithm {
             return *this->members_next_ptr;
         }
         
-        simple_team():random(rd())
+        simple_team():random(rd()),migrate(*this)
         {
             members_ptr = &buffer.members_front;
             members_next_ptr = &buffer.members_back;
@@ -231,6 +233,30 @@ namespace algorithm {
                 }
             }
         }
+        
+        class migrate_type
+        {
+            this_type&team;
+            std::mutex mutex;
+            members_with_fitnesses_type pool;
+            explicit migrate_type(this_type&t):team(t){}
+            friend this_type;
+        public:
+            void insert(typename members_with_fitnesses_type::iterator begin, typename members_with_fitnesses_type::iterator end, size_t nMaxInPool)
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                assert(nMaxInPool < team.size());
+                if (pool.size() >= nMaxInPool)
+                    return;
+                pool.insert(std::end(pool), begin, end);
+            }
+            void process()
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                team.random_replace_member_next_with_range(std::begin(pool), std::end(pool));
+                pool.clear();
+            }
+        }migrate;
     };
 
 } // namespace algorithm {

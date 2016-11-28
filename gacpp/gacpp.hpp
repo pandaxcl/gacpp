@@ -3,6 +3,8 @@
 #include <random>
 #include <cassert>
 #include <functional>
+#include <thread>
+#include <future>
 
 namespace gacpp {
 

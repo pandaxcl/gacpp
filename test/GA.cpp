@@ -445,6 +445,44 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 GA.swap_buffers();
             }
         }
+        THEN("to find its extremum in multi thread mode")
+        {
+            struct CPU
+            {
+                gacpp::algorithm::simple_report<FindMaxValue::real_type> report;
+                FindMaxValue::team_t GA;
+                
+                CPU():GA(100*10){}
+                void run(std::vector<CPU>&cpus)
+                {
+                    GA.random_initialize();
+                    for (auto i=0; i<10000; i++)
+                    {
+                        GA.epoch();
+                        GA.sort_members_by_fitness_with_descending_order();
+                        
+                        if (report = GA.minmax_fitness_in_sorted_members_with_descending_order())
+                        {
+                            const auto&mwf = GA.members_with_fitnesses().front();
+                            auto x = mwf.member.at(0).value();
+                            std::cout << std::setprecision(16) << std::fixed << std::showpos;
+                            std::cout << report << "\tx = " << x <<std::endl;
+                            GA.keep_best_for_ratio(0.05);
+                        }
+                        
+                        GA.swap_buffers();
+                    }
+                }
+            };
+
+            std::vector<CPU> cpus(std::thread::hardware_concurrency());
+            std::vector<std::thread> threads;
+            for (auto&&cpu:cpus)
+                threads.push_back(std::thread([&cpu,&cpus](){ cpu.run(cpus); }));
+
+            for (auto&&thread:threads)
+                thread.join();
+        }
     }
     GIVEN("f(x,y) = (4-2.1*x^2+x^4/3)*x^2+x*y+(-4+4*y^2)*y^2")
     {
