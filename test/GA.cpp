@@ -449,11 +449,11 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
         {
             struct CPU
             {
-                gacpp::algorithm::simple_report<FindMaxValue::real_type> report;
+                gacpp::algorithm::simple_report<FindMaxValue::real_type,20*1000> report;
                 FindMaxValue::team_t GA;
                 
                 CPU():GA(100*10){}
-                void run(std::vector<CPU>&cpus)
+                void run(std::vector<CPU>&cpus, int migrate)
                 {
                     GA.random_initialize();
                     for (auto i=0; i<10000; i++)
@@ -470,6 +470,17 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                             GA.keep_best_for_ratio(0.05);
                         }
                         
+                        if (0 == i%100)
+                        {
+                            auto&&cpu = cpus[migrate];
+                            auto n = GA.members_with_fitnesses().size()*0.1;
+                            auto begin = std::begin(GA.members_with_fitnesses());
+                            auto end = begin; std::advance(end, n);
+                            cpu.GA.migrate.insert(begin, end, n);
+                        }
+                        
+                        GA.migrate.process();
+                        
                         GA.swap_buffers();
                     }
                 }
@@ -477,8 +488,16 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
 
             std::vector<CPU> cpus(std::thread::hardware_concurrency());
             std::vector<std::thread> threads;
-            for (auto&&cpu:cpus)
-                threads.push_back(std::thread([&cpu,&cpus](){ cpu.run(cpus); }));
+            std::set<int> migrates;
+            std::default_random_engine random;
+            gacpp::util::random_positions_with_distinct(migrates, cpus.size(), random, cpus.size());
+            
+            auto it = migrates.begin();
+            for (auto i=0;i<cpus.size(); i++, it++)
+            {
+                auto&&cpu = cpus[i];
+                threads.push_back(std::thread([&cpu,&cpus,it](){ cpu.run(cpus, *it); }));
+            }
 
             for (auto&&thread:threads)
                 thread.join();
