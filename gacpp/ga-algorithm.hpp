@@ -1,7 +1,7 @@
 
 namespace algorithm {
     
-    template<typename Real, int N_epoch_width=6, int N_precision=16, int N_time_over_seconds=5>
+    template<typename Real, int N_time_over_seconds=5, int N_epoch_width=6, int N_precision=16>
     struct simple_report
     {
         typedef Real real_type;
