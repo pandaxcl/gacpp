@@ -202,16 +202,33 @@ namespace algorithm {
         void keep_best_for_ratio(real_type ratio)
         {
             auto n = static_cast<std::size_t>(this->members_with_fitnesses().size() * ratio);
-            std::set<std::size_t> replace_points;
-            while (replace_points.size() < n)
-            {
-                replace_points.insert(this->random()%this->members_with_fitnesses().size());
-            }
             
-            std::size_t i=0;
-            for (auto it=std::begin(replace_points); it!=std::end(replace_points); it++,i++)
+            auto begin = std::begin(members_with_fitnesses());
+            auto end = begin; std::advance(end, n-1);
+            
+            random_replace_member_next_with_range(begin, end);
+        }
+        
+        void random_replace_member_next_with_range(typename members_with_fitnesses_type::iterator begin, typename members_with_fitnesses_type::iterator end)
+        {
+            size_t n = std::distance(begin, end);
+            
+            if (n <= 0)
+                return;
+            
+            std::set<size_t> random_positions;
+            util::random_positions_with_distinct<size_t>(random_positions, n, random, this->size());
+            
             {
-                this->members_with_fitnesses_next()[*it] = this->members_with_fitnesses()[i];
+                auto it_position = std::begin(random_positions);
+                auto n_position = *it_position;
+                
+                for (auto it=begin; it!=end; it++)
+                {
+                    auto it_next = std::begin(this->members_with_fitnesses_next());
+                    std::advance(it_next, *it_position);
+                    *it_next = *it;
+                }
             }
         }
     };

@@ -42,4 +42,14 @@ namespace util {
         return random%N;
     }
     
+    template<typename Integer, typename Random, typename Set>
+    void random_positions_with_distinct(Set&&positions, Integer n, Random&&random, Integer size)
+    {
+        std::uniform_int_distribution<Integer> generator(0, size);
+        while(positions.size() < n)
+        {
+            positions.insert(generator(random));
+        }
+    }
+    
 }// namespace util {
