@@ -45,6 +45,9 @@ namespace util {
     template<typename Integer, typename Random, typename Set>
     void random_positions_with_distinct(Set&&positions, Integer n, Random&&random, Integer size)
     {
+        typedef typename std::remove_reference<Set>::type::value_type set_value_type;
+        static_assert(std::is_convertible<Integer, set_value_type>::value, "");
+        
         std::uniform_int_distribution<Integer> generator(0, size);
         while(positions.size() < n)
         {
