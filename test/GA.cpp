@@ -453,7 +453,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 FindMaxValue::team_t GA;
                 
                 CPU():GA(100*10){}
-                void run(std::vector<CPU>&cpus, int migrate)
+                void run(int i_cpu, std::vector<CPU>&cpus, int migrate_cpu)
                 {
                     GA.random_initialize();
                     for (auto i=0; i<10000; i++)
@@ -470,13 +470,16 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                             GA.keep_best_for_ratio(0.05);
                         }
                         
-                        if (0 == i%100)
+                        if (i_cpu != migrate_cpu)
                         {
-                            auto&&cpu = cpus[migrate];
-                            auto n = GA.members_with_fitnesses().size()*0.1;
-                            auto begin = std::begin(GA.members_with_fitnesses());
-                            auto end = begin; std::advance(end, n);
-                            cpu.GA.migrate.insert(begin, end, n);
+                            if (0 == i%100)
+                            {
+                                auto&&cpu = cpus[migrate_cpu];
+                                auto n = GA.members_with_fitnesses().size()*0.1;
+                                auto begin = std::begin(GA.members_with_fitnesses());
+                                auto end = begin; std::advance(end, n);
+                                cpu.GA.migrate.insert(begin, end, n);
+                            }
                         }
                         
                         GA.migrate.process();
@@ -496,7 +499,9 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             for (auto i=0;i<cpus.size(); i++, it++)
             {
                 auto&&cpu = cpus[i];
-                threads.push_back(std::thread([&cpu,&cpus,it](){ cpu.run(cpus, *it); }));
+                threads.push_back(std::thread([&cpu,&cpus,it,i](){
+                    cpu.run(i, cpus, *it);
+                }));
             }
 
             for (auto&&thread:threads)
