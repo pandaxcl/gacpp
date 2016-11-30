@@ -453,7 +453,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 FindMaxValue::team_t GA;
                 
                 CPU():GA(100*10){}
-                void run(int i_cpu, std::vector<CPU>&cpus, int migrate_cpu)
+                void run(int i_cpu, std::vector<CPU>&cpus, int migrate_cpu, std::mutex&cout_mutex)
                 {
                     GA.random_initialize();
                     for (auto i=0; i<10000; i++)
@@ -465,6 +465,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                         {
                             const auto&mwf = GA.members_with_fitnesses().front();
                             auto x = mwf.member.at(0).value();
+                            std::lock_guard<std::mutex> lock(cout_mutex);
                             std::cout << std::setprecision(16) << std::fixed << std::showpos;
                             std::cout << report << "\tx = " << x <<std::endl;
                             GA.keep_best_for_ratio(0.05);
@@ -489,6 +490,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 }
             };
 
+            std::mutex cout_mutex;
             std::vector<CPU> cpus(std::thread::hardware_concurrency());
             std::vector<std::future<void>> futures;
             std::set<int> migrates;
@@ -499,9 +501,9 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             for (auto i=0;i<cpus.size(); i++, it++)
             {
                 auto migrate_cpu = *it;
-                futures.push_back(std::async([&cpus,migrate_cpu,i](){
+                futures.push_back(std::async([&cpus,migrate_cpu,i,&cout_mutex](){
                     auto&&cpu = cpus[i];
-                    cpu.run(i, cpus, migrate_cpu);
+                    cpu.run(i, cpus, migrate_cpu, cout_mutex);
                 }));
             }
 
