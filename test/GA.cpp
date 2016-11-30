@@ -490,7 +490,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             };
 
             std::vector<CPU> cpus(std::thread::hardware_concurrency());
-            std::vector<std::thread> threads;
+            std::vector<std::future<void>> futures;
             std::set<int> migrates;
             std::default_random_engine random;
             gacpp::util::random_positions_with_distinct(migrates, cpus.size(), random, cpus.size());
@@ -498,14 +498,15 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             auto it = migrates.begin();
             for (auto i=0;i<cpus.size(); i++, it++)
             {
-                auto&&cpu = cpus[i];
-                threads.push_back(std::thread([&cpu,&cpus,it,i](){
-                    cpu.run(i, cpus, *it);
+                auto migrate_cpu = *it;
+                futures.push_back(std::async([&cpus,migrate_cpu,i](){
+                    auto&&cpu = cpus[i];
+                    cpu.run(i, cpus, migrate_cpu);
                 }));
             }
 
-            for (auto&&thread:threads)
-                thread.join();
+            for (auto&&future:futures)
+                future.wait();
         }
     }
     GIVEN("f(x,y) = (4-2.1*x^2+x^4/3)*x^2+x*y+(-4+4*y^2)*y^2")
