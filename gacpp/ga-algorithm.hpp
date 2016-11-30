@@ -13,7 +13,6 @@ namespace algorithm {
         
         bool assign(real_type min, real_type max)
         {
-            bool needRecord = false;
             bool timeOver = false;
             {
                 auto current_time = std::chrono::steady_clock::now();
@@ -23,7 +22,16 @@ namespace algorithm {
                     last_time = current_time;
             }
             
-            if (max > this->minmax.second || timeOver)
+            if (timeOver)
+            {
+                std::ostringstream oss;
+                oss << std::setw(14) << std::this_thread::get_id();
+                oss << "[" << std::setw(N_epoch_width) << n_epoch << "]";
+                message = oss.str();
+            }
+            
+            bool fitnessIncremented = max > this->minmax.second;
+            if (fitnessIncremented)
             {
                 real_type deltaMin = min  - this->minmax.first;
                 real_type deltaMax = max - this->minmax.second;
@@ -41,11 +49,11 @@ namespace algorithm {
                     oss << "}";
                     message = oss.str();
                 }
-
-                needRecord = true;
             }
+            
             n_epoch ++;
-            return needRecord;
+            
+            return fitnessIncremented || timeOver;
         }
         template<typename MinMax>
         typename std::enable_if<

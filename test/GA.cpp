@@ -449,7 +449,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
         {
             struct CPU
             {
-                gacpp::algorithm::simple_report<FindMaxValue::real_type,20*1000> report;
+                gacpp::algorithm::simple_report<FindMaxValue::real_type> report;
                 FindMaxValue::team_t GA;
                 
                 CPU():GA(100*10){}
