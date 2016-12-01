@@ -465,9 +465,11 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                         {
                             const auto&mwf = GA.members_with_fitnesses().front();
                             auto x = mwf.member.at(0).value();
-                            std::lock_guard<std::mutex> lock(cout_mutex);
-                            std::cout << std::setprecision(16) << std::fixed << std::showpos;
-                            std::cout << report << "\tx = " << x <<std::endl;
+                            {
+                                std::lock_guard<std::mutex> lock(cout_mutex);
+                                std::cout << std::setprecision(16) << std::fixed << std::showpos;
+                                std::cout << report << "\tx = " << x <<std::endl;
+                            }
                             GA.keep_best_for_ratio(0.05);
                         }
                         
