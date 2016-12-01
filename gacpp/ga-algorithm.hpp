@@ -13,25 +13,17 @@ namespace algorithm {
         
         bool assign(real_type min, real_type max)
         {
+            bool fitnessIncremented = max > this->minmax.second;
             bool timeOver = false;
             {
                 auto current_time = std::chrono::steady_clock::now();
                 auto duration_seconds = std::chrono::duration_cast<std::chrono::duration<int>>(current_time - last_time);
                 timeOver = duration_seconds > std::chrono::seconds(N_time_over_seconds);
-                if (timeOver)
+                if (timeOver || fitnessIncremented)
                     last_time = current_time;
             }
             
-            if (timeOver)
-            {
-                std::ostringstream oss;
-                oss << std::setw(14) << std::this_thread::get_id();
-                oss << "[" << std::setw(N_epoch_width) << n_epoch << "]";
-                message = oss.str();
-            }
-            
-            bool fitnessIncremented = max > this->minmax.second;
-            if (fitnessIncremented)
+            if (fitnessIncremented || timeOver)
             {
                 real_type deltaMin = min  - this->minmax.first;
                 real_type deltaMax = max - this->minmax.second;
@@ -42,7 +34,7 @@ namespace algorithm {
                     const size_t n = N_precision;
                     std::ostringstream oss;
                     oss << std::setprecision(n) << std::fixed;
-                    oss << std::setw(14) << std::this_thread::get_id();
+                    oss << std::setw(14) << std::this_thread::get_id() << "[" << (timeOver?"T":" ") << "]";
                     oss << "[" << std::setw(N_epoch_width) << n_epoch << "]: {";
                     oss << std::setw(n) << std::noshowpos << this->minmax.first  << "(" << std::showpos << std::setw(n) << deltaMin << "), ";
                     oss << std::setw(n) << std::noshowpos << this->minmax.second << "(" << std::showpos << std::setw(n) << deltaMax << ")";
