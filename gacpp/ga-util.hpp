@@ -1,9 +1,9 @@
 namespace util {
     
     template<typename Value, typename Real>
-    Value&& value_in_range_with_ratio(const Value&A, const Value&B, Real t)
+    Value value_in_range_with_ratio(const Value&A, const Value&B, Real t)
     {
-        return std::move(A + (B - A) * t);
+        return A + (B - A) * t;
     }
     
     template<typename Value, typename Random>

@@ -452,8 +452,8 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 gacpp::algorithm::simple_report<FindMaxValue::real_type> report;
                 FindMaxValue::team_t GA;
                 
-                CPU():GA(100*10){}
-                void run(std::vector<CPU>&cpus)
+                CPU():GA(100*100){}
+                void run(int i_cpu, std::vector<CPU>&cpus, int migrate_cpu, std::mutex&cout_mutex)
                 {
                     GA.random_initialize();
                     for (auto i=0; i<10000; i++)
@@ -465,23 +465,49 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                         {
                             const auto&mwf = GA.members_with_fitnesses().front();
                             auto x = mwf.member.at(0).value();
-                            std::cout << std::setprecision(16) << std::fixed << std::showpos;
-                            std::cout << report << "\tx = " << x <<std::endl;
+                            {
+                                std::lock_guard<std::mutex> lock(cout_mutex);
+                                std::cout << std::setprecision(16) << std::fixed << std::showpos;
+                                std::cout << report << "\tx = " << x <<std::endl;
+                            }
                             GA.keep_best_for_ratio(0.05);
                         }
+                        
+                        if (i_cpu != migrate_cpu)
+                        {
+                            if (0 == i%100)
+                            {
+                                auto&&cpu = cpus[migrate_cpu];
+                                auto n = GA.members_with_fitnesses().size()*0.1;
+                                auto begin = std::begin(GA.members_with_fitnesses());
+                                auto end = begin; std::advance(end, n);
+                                cpu.GA.migrate.insert(begin, end, n);
+                            }
+                        }
+                        
+                        GA.migrate.process();
                         
                         GA.swap_buffers();
                     }
                 }
             };
 
-            std::vector<CPU> cpus(std::thread::hardware_concurrency());
-            std::vector<std::thread> threads;
-            for (auto&&cpu:cpus)
-                threads.push_back(std::thread([&cpu,&cpus](){ cpu.run(cpus); }));
+            std::mutex cout_mutex;
+            std::vector<CPU> cpus(std::thread::hardware_concurrency()+2);
+            std::vector<std::future<void>> futures;
+            std::default_random_engine random;
+            
+            for (auto i_cpu=0;i_cpu<cpus.size(); i_cpu++)
+            {
+                auto migrate_cpu = (i_cpu+1)%cpus.size();
+                futures.push_back(std::async([&cpus,migrate_cpu,i_cpu,&cout_mutex](){
+                    auto&&cpu = cpus[i_cpu];
+                    cpu.run(i_cpu, cpus, migrate_cpu, cout_mutex);
+                }));
+            }
 
-            for (auto&&thread:threads)
-                thread.join();
+            for (auto&&future:futures)
+                future.wait();
         }
     }
     GIVEN("f(x,y) = (4-2.1*x^2+x^4/3)*x^2+x*y+(-4+4*y^2)*y^2")
