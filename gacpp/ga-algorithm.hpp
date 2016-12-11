@@ -221,11 +221,11 @@ namespace algorithm {
             }
         }
         
-        class result_type
+        class result_catetory
         {
             this_type&team;
         public:
-            result_type(this_type&t):team(t) {}
+            explicit result_catetory(this_type&t):team(t) {}
             void sort_by_fitness_with_descending_order()
             {
                 typedef typename members_with_fitnesses_type::value_type value_type;
@@ -250,12 +250,12 @@ namespace algorithm {
             }
         }result;
         
-        class migrate_type
+        class migrate_catetory
         {
             this_type&team;
             std::mutex mutex;
             members_with_fitnesses_type pool;
-            explicit migrate_type(this_type&t):team(t){}
+            explicit migrate_catetory(this_type&t):team(t){}
             friend this_type;
         public:
             void insert(typename members_with_fitnesses_type::iterator begin, typename members_with_fitnesses_type::iterator end, size_t nMaxInPool)
