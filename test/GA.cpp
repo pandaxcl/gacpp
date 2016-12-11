@@ -431,15 +431,15 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             for (auto i=0; i<10000; i++)
             {
                 GA.epoch();
-                GA.sort_members_by_fitness_with_descending_order();
+                GA.result.sort_by_fitness_with_descending_order();
 
-                if (report = GA.minmax_fitness_in_sorted_members_with_descending_order())
+                if (report = GA.result.minmax_fitness())
                 {
                     const auto&mwf = GA.members_with_fitnesses().front();
                     auto x = mwf.member.at(0).value();
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << "\tx = " << x <<std::endl;
-                    GA.keep_best_for_ratio(0.05);
+                    GA.result.keep_best_for_ratio(0.05);
                 }
                 
                 GA.swap_buffers();
@@ -459,9 +459,9 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     for (auto i=0; i<10000; i++)
                     {
                         GA.epoch();
-                        GA.sort_members_by_fitness_with_descending_order();
+                        GA.result.sort_by_fitness_with_descending_order();
                         
-                        if (report = GA.minmax_fitness_in_sorted_members_with_descending_order())
+                        if (report = GA.result.minmax_fitness())
                         {
                             const auto&mwf = GA.members_with_fitnesses().front();
                             auto x = mwf.member.at(0).value();
@@ -470,7 +470,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                                 std::cout << std::setprecision(16) << std::fixed << std::showpos;
                                 std::cout << report << "\tx = " << x <<std::endl;
                             }
-                            GA.keep_best_for_ratio(0.05);
+                            GA.result.keep_best_for_ratio(0.05);
                         }
                         
                         if (i_cpu != migrate_cpu)
@@ -579,9 +579,9 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
             for (auto i=0; i<10000; i++)
             {
                 GA.epoch();
-                GA.sort_members_by_fitness_with_descending_order();
+                GA.result.sort_by_fitness_with_descending_order();
                 
-                if (report = GA.minmax_fitness_in_sorted_members_with_descending_order())
+                if (report = GA.result.minmax_fitness())
                 {
                     const auto&mwf = GA.members_with_fitnesses().front();
                     auto x = mwf.member.at(0).value();
@@ -589,7 +589,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << "\t(x, y) = (" << x << ", " << y <<")" << std::endl;
-                    GA.keep_best_for_ratio(0.05);
+                    GA.result.keep_best_for_ratio(0.05);
                 }
                 
                 GA.swap_buffers();

@@ -112,7 +112,7 @@ namespace algorithm {
             return *this->members_next_ptr;
         }
         
-        simple_team():random(rd()),migrate(*this)
+        simple_team():random(rd()), result(*this), migrate(*this)
         {
             members_ptr = &buffer.members_front;
             members_next_ptr = &buffer.members_back;
@@ -198,30 +198,6 @@ namespace algorithm {
             }
         }
         
-        void sort_members_by_fitness_with_descending_order()
-        {
-            typedef typename members_with_fitnesses_type::value_type value_type;
-            std::sort(std::begin(this->members_with_fitnesses()), std::end(this->members_with_fitnesses()), [](value_type&a, value_type&b) {
-                return a.fitness > b.fitness;
-            });
-        }
-        
-        auto minmax_fitness_in_sorted_members_with_descending_order()
-        ->  decltype(std::make_pair(this->members_with_fitnesses().back().fitness, this->members_with_fitnesses().front().fitness))
-        {
-            return std::make_pair(this->members_with_fitnesses().back().fitness, this->members_with_fitnesses().front().fitness);
-        }
-        
-        void keep_best_for_ratio(real_type ratio)
-        {
-            auto n = static_cast<std::size_t>(this->members_with_fitnesses().size() * ratio);
-            
-            auto begin = std::begin(members_with_fitnesses());
-            auto end = begin; std::advance(end, n-1);
-            
-            random_replace_member_next_with_range(begin, end);
-        }
-        
         void random_replace_member_next_with_range(typename members_with_fitnesses_type::iterator begin, typename members_with_fitnesses_type::iterator end)
         {
             size_t n = std::distance(begin, end);
@@ -244,6 +220,35 @@ namespace algorithm {
                 }
             }
         }
+        
+        class result_type
+        {
+            this_type&team;
+        public:
+            result_type(this_type&t):team(t) {}
+            void sort_by_fitness_with_descending_order()
+            {
+                typedef typename members_with_fitnesses_type::value_type value_type;
+                auto&ms_w_fs = team.members_with_fitnesses();
+                std::sort(std::begin(ms_w_fs), std::end(ms_w_fs), [](value_type&a, value_type&b) {
+                    return a.fitness > b.fitness;
+                });
+            }
+            auto minmax_fitness()->std::pair<real_type, real_type>
+            {
+                return std::make_pair(team.members_with_fitnesses().back().fitness,
+                                      team.members_with_fitnesses().front().fitness);
+            }
+            void keep_best_for_ratio(real_type ratio)
+            {
+                auto n = static_cast<std::size_t>(team.members_with_fitnesses().size() * ratio);
+                
+                auto begin = std::begin(team.members_with_fitnesses());
+                auto end = begin; std::advance(end, n-1);
+                
+                team.random_replace_member_next_with_range(begin, end);
+            }
+        }result;
         
         class migrate_type
         {
