@@ -1,7 +1,7 @@
 
 namespace algorithm {
     
-    template<typename Real, int N_time_over_seconds=5, int N_epoch_width=6, int N_precision=16>
+    template<typename Real=double, int N_time_over_seconds=60, int N_epoch_width=6, int N_precision=16>
     struct simple_report
     {
         typedef Real real_type;
@@ -90,6 +90,7 @@ namespace algorithm {
         {
             real_type   fitness;
             member_type member;
+            friend bool operator > (const MemberWithFitness&a, const MemberWithFitness&b) { return a.fitness > b.fitness; }
         };
         typedef std::vector<MemberWithFitness> members_with_fitnesses_type;
         
@@ -225,6 +226,7 @@ namespace algorithm {
         {
             this_type&team;
         public:
+            std::set<MemberWithFitness, std::greater<MemberWithFitness>> history_best_in_descending_order;
             explicit result_catetory(this_type&t):team(t) {}
             void sort_by_fitness_with_descending_order()
             {
@@ -242,6 +244,21 @@ namespace algorithm {
             void keep_best_for_ratio(real_type ratio)
             {
                 auto n = static_cast<std::size_t>(team.members_with_fitnesses().size() * ratio);
+                // has been sorted by fitness with descending order
+                auto&ms_w_fs = team.members_with_fitnesses();
+                for (int i=0; i<n; i++)
+                {
+                    auto&h = ms_w_fs.at(i);
+                    history_best_in_descending_order.insert(h);
+                }
+                auto num_will_be_erased = history_best_in_descending_order.size() - n;
+                if (num_will_be_erased > 0)
+                {
+                    auto it_from = history_best_in_descending_order.end();
+                    auto it_end = history_best_in_descending_order.end();
+                    std::advance(it_from, -num_will_be_erased);
+                    history_best_in_descending_order.erase(it_from, it_end);
+                }
                 
                 auto begin = std::begin(team.members_with_fitnesses());
                 auto end = begin; std::advance(end, n-1);

@@ -439,9 +439,8 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     auto x = mwf.member.at(0).value();
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << "\tx = " << x <<std::endl;
-                    GA.result.keep_best_for_ratio(0.05);
                 }
-                
+                GA.result.keep_best_for_ratio(0.05);
                 GA.swap_buffers();
             }
         }
@@ -452,7 +451,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 gacpp::algorithm::simple_report<FindMaxValue::real_type> report;
                 FindMaxValue::team_t GA;
                 
-                CPU():GA(100*100){}
+                CPU():GA(100){}
                 void run(int i_cpu, std::vector<CPU>&cpus, int migrate_cpu, std::mutex&cout_mutex)
                 {
                     GA.random_initialize();
@@ -470,12 +469,11 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                                 std::cout << std::setprecision(16) << std::fixed << std::showpos;
                                 std::cout << report << "\tx = " << x <<std::endl;
                             }
-                            GA.result.keep_best_for_ratio(0.05);
                         }
-                        
+                        GA.result.keep_best_for_ratio(0.05);
                         if (i_cpu != migrate_cpu)
                         {
-                            if (0 == i%100)
+                            if (0 == i%50)
                             {
                                 auto&&cpu = cpus[migrate_cpu];
                                 auto n = GA.members_with_fitnesses().size()*0.1;
@@ -589,8 +587,8 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << "\t(x, y) = (" << x << ", " << y <<")" << std::endl;
-                    GA.result.keep_best_for_ratio(0.05);
                 }
+                GA.result.keep_best_for_ratio(0.05);
                 
                 GA.swap_buffers();
             }
