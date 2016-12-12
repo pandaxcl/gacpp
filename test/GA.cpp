@@ -452,7 +452,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 FindMaxValue::team_t GA;
                 
                 CPU():GA(100){}
-                void run(int i_cpu, std::vector<CPU>&cpus, int migrate_cpu, std::mutex&cout_mutex)
+                void run(std::vector<CPU>&cpus, int migrate_cpu, std::mutex&cout_mutex)
                 {
                     GA.random_initialize();
                     for (auto i=0; i<10000; i++)
@@ -471,16 +471,14 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                             }
                         }
                         GA.result.keep_best_for_ratio(0.05);
-                        if (i_cpu != migrate_cpu)
+                        
+                        if (0 == i%50)
                         {
-                            if (0 == i%50)
-                            {
-                                auto&&cpu = cpus[migrate_cpu];
-                                auto n = GA.members_with_fitnesses().size()*0.1;
-                                auto begin = std::begin(GA.members_with_fitnesses());
-                                auto end = begin; std::advance(end, n);
-                                cpu.GA.migrate.insert(begin, end, n);
-                            }
+                            auto&&cpu = cpus[migrate_cpu];
+                            auto n = GA.members_with_fitnesses().size()*0.1;
+                            auto begin = std::begin(GA.members_with_fitnesses());
+                            auto end = begin; std::advance(end, n);
+                            cpu.GA.migrate.insert(begin, end, n);
                         }
                         
                         GA.migrate.process();

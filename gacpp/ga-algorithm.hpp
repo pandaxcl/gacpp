@@ -308,7 +308,7 @@ namespace algorithm {
                 auto migrate_cpu = (i_cpu+1)%cpus.size();
                 futures.push_back(std::async([this,migrate_cpu,i_cpu](){
                     auto&&cpu = cpus[i_cpu];
-                    cpu.run(i_cpu, cpus, migrate_cpu, cout_mutex);
+                    cpu.run(cpus, migrate_cpu, cout_mutex);
                 }));
             }
             
