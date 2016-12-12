@@ -291,5 +291,30 @@ namespace algorithm {
             }
         }migrate;
     };
+    
+    template<typename CPU>
+    class island_team
+    {
+        std::mutex cout_mutex;
+        std::vector<CPU> cpus;//(std::thread::hardware_concurrency()+2);
+        std::vector<std::future<void>> futures;
+        std::default_random_engine random;
+    public:
+        explicit island_team(size_t N_cpus):cpus(N_cpus){}
+        void operator()()
+        {
+            for (auto i_cpu=0;i_cpu<cpus.size(); i_cpu++)
+            {
+                auto migrate_cpu = (i_cpu+1)%cpus.size();
+                futures.push_back(std::async([this,migrate_cpu,i_cpu](){
+                    auto&&cpu = cpus[i_cpu];
+                    cpu.run(i_cpu, cpus, migrate_cpu, cout_mutex);
+                }));
+            }
+            
+            for (auto&&future:futures)
+                future.wait();
+        }
+    };
 
 } // namespace algorithm {
