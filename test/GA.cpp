@@ -452,7 +452,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 FindMaxValue::team_t GA;
                 
                 CPU():GA(100){}
-                void run(std::vector<CPU>&cpus, int migrate_cpu, std::mutex&cout_mutex)
+                void operator()(gacpp::algorithm::island_team<CPU>&islands, int migrate_cpu)
                 {
                     GA.random_initialize();
                     for (auto i=0; i<10000; i++)
@@ -465,7 +465,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                             const auto&mwf = GA.members_with_fitnesses().front();
                             auto x = mwf.member.at(0).value();
                             {
-                                std::lock_guard<std::mutex> lock(cout_mutex);
+                                std::lock_guard<std::mutex> lock(islands.report_mutex);
                                 std::cout << std::setprecision(16) << std::fixed << std::showpos;
                                 std::cout << report << "\tx = " << x <<std::endl;
                             }
@@ -474,7 +474,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                         
                         if (0 == i%50)
                         {
-                            auto&&cpu = cpus[migrate_cpu];
+                            auto&&cpu = islands.cpus[migrate_cpu];
                             auto n = GA.members_with_fitnesses().size()*0.1;
                             auto begin = std::begin(GA.members_with_fitnesses());
                             auto end = begin; std::advance(end, n);

@@ -226,7 +226,8 @@ namespace algorithm {
         {
             this_type&team;
         public:
-            std::set<MemberWithFitness, std::greater<MemberWithFitness>> history_best_in_descending_order;
+            typedef std::set<MemberWithFitness, std::greater<MemberWithFitness>> history_best_in_descending_order_type;
+            history_best_in_descending_order_type history_best_in_descending_order;
             explicit result_catetory(this_type&t):team(t) {}
             void sort_by_fitness_with_descending_order()
             {
@@ -241,6 +242,7 @@ namespace algorithm {
                 return std::make_pair(team.members_with_fitnesses().back().fitness,
                                       team.members_with_fitnesses().front().fitness);
             }
+            
             void keep_best_for_ratio(real_type ratio)
             {
                 auto n = static_cast<std::size_t>(team.members_with_fitnesses().size() * ratio);
@@ -275,7 +277,7 @@ namespace algorithm {
             explicit migrate_catetory(this_type&t):team(t){}
             friend this_type;
         public:
-            void insert(typename members_with_fitnesses_type::iterator begin, typename members_with_fitnesses_type::iterator end, size_t nMaxInPool)
+            void insert(typename members_with_fitnesses_type::const_iterator begin, typename members_with_fitnesses_type::const_iterator end, size_t nMaxInPool)
             {
                 std::lock_guard<std::mutex> lock(mutex);
                 assert(nMaxInPool < team.size());
@@ -292,13 +294,14 @@ namespace algorithm {
         }migrate;
     };
     
-    template<typename CPU>
+    template<typename T_CPU>
     class island_team
     {
-        std::mutex cout_mutex;
-        std::vector<CPU> cpus;//(std::thread::hardware_concurrency()+2);
+        std::mutex report_mutex;
+        std::vector<T_CPU> cpus;//(std::thread::hardware_concurrency()+2);
         std::vector<std::future<void>> futures;
         std::default_random_engine random;
+        friend T_CPU;
     public:
         explicit island_team(size_t N_cpus):cpus(N_cpus){}
         void operator()()
@@ -308,7 +311,7 @@ namespace algorithm {
                 auto migrate_cpu = (i_cpu+1)%cpus.size();
                 futures.push_back(std::async([this,migrate_cpu,i_cpu](){
                     auto&&cpu = cpus[i_cpu];
-                    cpu.run(cpus, migrate_cpu, cout_mutex);
+                    cpu(*this, migrate_cpu);
                 }));
             }
             
