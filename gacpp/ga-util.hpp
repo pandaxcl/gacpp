@@ -54,5 +54,13 @@ namespace util {
             positions.insert(generator(random));
         }
     }
+    template<typename Container>
+    typename Container::iterator end(Container&C, size_t n)
+    {
+        typename Container::iterator it = std::begin(C);
+        n = std::min(n, C.size());
+        std::advance(it, n);
+        return it;
+    }
     
 }// namespace util {

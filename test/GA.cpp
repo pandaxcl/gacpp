@@ -440,7 +440,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << "\tx = " << x <<std::endl;
                 }
-                GA.result.keep_best_for_ratio(0.05);
+                GA.result.keep_best_in_history_for_ratio(0.05);
                 GA.swap_buffers();
             }
         }
@@ -470,15 +470,15 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                                 std::cout << report << "\tx = " << x <<std::endl;
                             }
                         }
-                        GA.result.keep_best_for_ratio(0.05);
+                        GA.result.keep_best_in_history_for_ratio(0.05);
                         
                         if (0 == i%50)
                         {
                             auto&&cpu = islands.cpus[migrate_cpu];
-                            auto n = GA.members_with_fitnesses().size()*0.1;
-                            auto begin = std::begin(GA.members_with_fitnesses());
-                            auto end = begin; std::advance(end, n);
-                            cpu.GA.migrate.insert(begin, end, n);
+                            auto n = GA.result.history_best_in_descending_order.size()*0.1;
+                            cpu.GA.migrate.insert(std::begin(GA.result.history_best_in_descending_order),
+                                                  gacpp::util::end(GA.result.history_best_in_descending_order, n),
+                                                  n);
                         }
                         
                         GA.migrate.process();
@@ -571,7 +571,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                     std::cout << std::setprecision(16) << std::fixed << std::showpos;
                     std::cout << report << "\t(x, y) = (" << x << ", " << y <<")" << std::endl;
                 }
-                GA.result.keep_best_for_ratio(0.05);
+                GA.result.keep_best_in_history_for_ratio(0.05);
                 
                 GA.swap_buffers();
             }
