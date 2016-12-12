@@ -452,7 +452,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 FindMaxValue::team_t GA;
                 
                 CPU():GA(100){}
-                void operator()(gacpp::algorithm::island_team<CPU>&islands, int migrate_cpu)
+                void operator()(gacpp::algorithm::multi_island_team<CPU>&islands, int migrate_cpu)
                 {
                     GA.random_initialize();
                     for (auto i=0; i<10000; i++)
@@ -488,7 +488,7 @@ SCENARIO("simple_gene", "[GA][minimum][maximum]")
                 }
             };
 
-            gacpp::algorithm::island_team<CPU>(std::thread::hardware_concurrency()+2)();
+            gacpp::algorithm::multi_island_team<CPU>(std::thread::hardware_concurrency()+2)();
         }
     }
     GIVEN("f(x,y) = (4-2.1*x^2+x^4/3)*x^2+x*y+(-4+4*y^2)*y^2")

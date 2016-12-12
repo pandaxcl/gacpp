@@ -300,7 +300,7 @@ namespace algorithm {
     };
     
     template<typename T_CPU>
-    class island_team
+    class multi_island_team
     {
         std::mutex report_mutex;
         std::vector<T_CPU> cpus;//(std::thread::hardware_concurrency()+2);
@@ -308,7 +308,7 @@ namespace algorithm {
         std::default_random_engine random;
         friend T_CPU;
     public:
-        explicit island_team(size_t N_cpus):cpus(N_cpus){}
+        explicit multi_island_team(size_t N_cpus):cpus(N_cpus){}
         void operator()()
         {
             for (auto i_cpu=0;i_cpu<cpus.size(); i_cpu++)
